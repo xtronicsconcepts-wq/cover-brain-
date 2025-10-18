@@ -12,32 +12,52 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     
     <style>
-        /* ===== STYLES EXISTANTS CONSERVÉS ===== */
+        /* ===== VARIABLES MODERNES ===== */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --secondary-dark: #d97706;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --gradient-secondary: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --gradient-dark: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --primary: #4a6fa5;
-            --secondary: #ffc107;
-            --dark: #343a40;
-            --light: #f5f7fa;
-            --success: #28a745;
-            --danger: #dc3545;
-            --info: #17a2b8;
-            --warning: #ffc107;
-            --gradient-primary: linear-gradient(135deg, #4a6fa5 0%, #2c5282 100%);
-            --gradient-secondary: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-            --gradient-success: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
-            --gradient-danger: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background-color: var(--light);
-            color: #333;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: var(--gray-800);
             line-height: 1.6;
             min-height: 100vh;
         }
@@ -53,15 +73,16 @@
             display: none !important;
         }
 
-        /* ===== HEADER ===== */
+        /* ===== HEADER MODERNE ===== */
         header {
             background: var(--gradient-primary);
             color: white;
             padding: 1rem 0;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-lg);
             position: sticky;
             top: 0;
             z-index: 1000;
+            backdrop-filter: blur(10px);
         }
 
         .header-content {
@@ -73,17 +94,21 @@
 
         .logo {
             font-size: 1.8rem;
-            font-weight: bold;
+            font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            letter-spacing: -0.025em;
         }
 
         .logo span {
-            color: var(--secondary);
+            background: var(--gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        /* ===== NAVIGATION ===== */
+        /* ===== NAVIGATION MODERNE ===== */
         .main-nav {
             display: flex;
             gap: 8px;
@@ -94,9 +119,9 @@
         .nav-tab {
             padding: 12px 20px;
             background: rgba(255,255,255,0.1);
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             color: white;
             font-weight: 500;
@@ -105,19 +130,37 @@
             gap: 8px;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-tab:hover::before {
+            left: 100%;
         }
 
         .nav-tab:hover {
             background: rgba(255,255,255,0.15);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .nav-tab.active {
             background: var(--gradient-secondary);
-            color: #333;
+            color: white;
+            box-shadow: var(--shadow-md);
         }
 
-        /* ===== MENU DÉROULANT CORRIGÉ ===== */
+        /* ===== MENU DÉROULANT MODERNE ===== */
         .more-dropdown {
             position: relative;
         }
@@ -127,41 +170,43 @@
             top: 100%;
             right: 0;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            min-width: 220px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            min-width: 240px;
             display: none;
             z-index: 1000;
             overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.1);
-            margin-top: 5px;
+            border: 1px solid var(--gray-200);
+            margin-top: 8px;
         }
 
         .more-menu.show {
             display: block;
-            animation: slideDown 0.3s ease;
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
+            from { opacity: 0; transform: translateY(-12px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .more-menu a {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 14px 20px;
-            color: var(--dark);
+            gap: 12px;
+            padding: 16px 20px;
+            color: var(--gray-800);
             text-decoration: none;
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--gray-100);
+            transition: all 0.2s ease;
             background: white;
+            font-weight: 500;
         }
 
         .more-menu a:hover {
             background: var(--gradient-primary);
             color: white;
+            transform: translateX(4px);
         }
 
         .more-menu a:last-child {
@@ -173,8 +218,10 @@
             align-items: center;
             background: rgba(255,255,255,0.15);
             padding: 10px 18px;
-            border-radius: 25px;
+            border-radius: var(--radius-lg);
             gap: 10px;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
         }
 
         .notification-badge {
@@ -187,112 +234,166 @@
             align-items: center;
             justify-content: center;
             font-size: 0.7rem;
-            font-weight: bold;
+            font-weight: 700;
             position: absolute;
             top: -5px;
             right: -5px;
+            animation: pulse 2s infinite;
         }
 
-        /* ===== HERO SECTION ===== */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ===== HERO SECTION MODERNE ===== */
         .hero {
             background: var(--gradient-primary);
             color: white;
             padding: 6rem 0;
             text-align: center;
             position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
         .hero h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 1.5rem;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1.1;
         }
 
         .hero p {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             max-width: 700px;
             margin: 0 auto 3rem;
+            opacity: 0.9;
+            font-weight: 400;
         }
 
-        /* ===== BUTTONS ===== */
+        /* ===== BOUTONS MODERNES ===== */
         .btn {
             display: inline-flex;
             align-items: center;
             gap: 10px;
             background: var(--gradient-secondary);
-            color: #333;
+            color: white;
             padding: 16px 32px;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:hover {
             transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
         }
 
         .btn-primary {
             background: var(--gradient-primary);
-            color: white;
         }
 
         .btn-success {
             background: var(--gradient-success);
-            color: white;
         }
 
         .btn-danger {
             background: var(--gradient-danger);
-            color: white;
-        }
-
-        .btn-invite {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
         }
 
         .btn-whatsapp {
             background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-            color: white;
+        }
+
+        .btn-pin {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
         }
 
         .btn-sm {
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-size: 0.9rem;
+            border-radius: var(--radius-md);
         }
 
-        /* ===== SECTIONS ===== */
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ===== SECTIONS MODERNES ===== */
         .section {
-            padding: 4rem 0;
+            padding: 5rem 0;
         }
 
         .section-title {
             text-align: center;
             margin-bottom: 3rem;
-            color: var(--primary);
+            color: var(--gray-800);
             position: relative;
-            font-size: 2.2rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
         }
 
         .section-title::after {
             content: '';
             display: block;
-            width: 100px;
-            height: 5px;
+            width: 80px;
+            height: 6px;
             background: var(--gradient-secondary);
             margin: 20px auto;
-            border-radius: 3px;
+            border-radius: var(--radius-full);
         }
 
-        /* ===== SEARCH SECTION ===== */
+        /* ===== SEARCH SECTION MODERNE ===== */
         .search-section {
-            background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+            background: white;
             padding: 4rem 0;
+            border-radius: var(--radius-xl);
+            margin: 2rem auto;
+            box-shadow: var(--shadow-sm);
         }
 
         .search-form {
@@ -300,9 +401,10 @@
             max-width: 800px;
             margin: 0 auto;
             gap: 0;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            border-radius: 15px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-xl);
             overflow: hidden;
+            background: white;
         }
 
         .search-input {
@@ -311,6 +413,11 @@
             border: none;
             font-size: 1.1rem;
             background: white;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--gray-400);
         }
 
         .search-btn {
@@ -321,21 +428,39 @@
             cursor: pointer;
             font-size: 1.1rem;
             font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        /* ===== CARDS ===== */
+        .search-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* ===== CARDS MODERNES ===== */
         .teacher-card, .student-card, .comment-card, .admin-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
             padding: 2.5rem;
             margin-bottom: 2rem;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-left: 6px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .teacher-card::before, .student-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
         }
 
         .teacher-card:hover, .student-card:hover {
             transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
         }
 
         .teacher-info, .student-info {
@@ -349,27 +474,36 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: var(--gray-50);
+            transition: all 0.2s ease;
+        }
+
+        .info-item:hover {
+            background: var(--gray-100);
+            transform: translateX(4px);
         }
 
         .info-item i {
             color: var(--primary);
             width: 20px;
+            font-size: 1.1rem;
         }
 
         .teacher-actions, .student-actions {
             display: flex;
             gap: 15px;
             margin-top: 2rem;
+            flex-wrap: wrap;
         }
 
         .availability-status {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 16px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
             font-size: 0.85rem;
             font-weight: 600;
             margin-left: 15px;
@@ -385,58 +519,49 @@
             color: white;
         }
 
-        /* ===== INVITATIONS ===== */
-        .invitation-status {
+        /* ===== PINNED STATUS ===== */
+        .pinned-status {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 12px;
-            border-radius: 20px;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
             font-size: 0.8rem;
             font-weight: 600;
             margin-left: 10px;
         }
 
-        .status-pending {
+        .status-pinned {
             background: var(--gradient-secondary);
-            color: #333;
-        }
-
-        .status-accepted {
-            background: var(--gradient-success);
-            color: white;
-        }
-
-        .status-rejected {
-            background: var(--gradient-danger);
             color: white;
         }
 
         .teacher-saturated {
-            opacity: 0.7;
+            opacity: 0.8;
             position: relative;
         }
 
         .teacher-saturated::after {
             content: 'SATURÉ';
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 20px;
+            right: 20px;
             background: var(--gradient-danger);
             color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
             font-size: 0.8rem;
-            font-weight: bold;
+            font-weight: 700;
+            z-index: 2;
         }
 
-        /* ===== PANIER SECTION ===== */
+        /* ===== PANIER SECTION MODERNE ===== */
         .basket-section {
             background: white;
-            border-radius: 16px;
+            border-radius: var(--radius-xl);
             padding: 2.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
         .basket-item {
@@ -444,7 +569,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--gray-200);
+            transition: all 0.2s ease;
+        }
+
+        .basket-item:hover {
+            background: var(--gray-50);
+            border-radius: var(--radius-md);
         }
 
         .basket-item:last-child {
@@ -454,68 +585,107 @@
         .basket-actions {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
-        /* ===== ADMIN PANEL ===== */
+        /* ===== ADMIN PANEL MODERNE ===== */
         .admin-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
 
         .stat-card {
             background: white;
-            padding: 2rem;
-            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            border-radius: var(--radius-xl);
             text-align: center;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
             border-left: 6px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
         }
 
         .stat-number {
-            font-size: 3rem;
-            font-weight: bold;
+            font-size: 3.5rem;
+            font-weight: 800;
             color: var(--primary);
             margin-bottom: 0.5rem;
+            line-height: 1;
         }
 
         .admin-section {
             background: white;
-            border-radius: 16px;
+            border-radius: var(--radius-xl);
             padding: 2.5rem;
             margin-bottom: 2.5rem;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
         .user-list, .comments-list {
             max-height: 500px;
             overflow-y: auto;
-            border-radius: 12px;
-            border: 2px solid #f0f0f0;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--gray-200);
+            background: var(--gray-50);
         }
 
         .user-item, .comment-item {
             padding: 1.5rem;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--gray-200);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .user-item:hover, .comment-item:hover {
+            background: white;
         }
 
         .user-actions, .comment-actions {
             display: flex;
             gap: 0.8rem;
+            flex-wrap: wrap;
         }
 
-        /* ===== FORMS ===== */
+        /* ===== FORMULAIRES MODERNES ===== */
         .form-container {
             background-color: white;
             max-width: 600px;
             margin: 2rem auto;
             padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
         }
 
         .form-group {
@@ -527,21 +697,24 @@
             display: block;
             margin-bottom: 0.8rem;
             font-weight: 600;
-            color: var(--dark);
+            color: var(--gray-800);
         }
 
         .form-control {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
+            padding: 16px 18px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
             font-size: 1rem;
-            background: #fafbfc;
+            background: white;
+            transition: all 0.2s ease;
+            outline: none;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         .password-toggle {
@@ -551,7 +724,12 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: #6c757d;
+            color: var(--gray-400);
+            transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
         }
 
         .user-type {
@@ -564,10 +742,11 @@
             flex: 1;
             text-align: center;
             padding: 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
             cursor: pointer;
-            background: #fafbfc;
+            background: white;
+            transition: all 0.3s ease;
         }
 
         .user-type input[type="radio"] {
@@ -578,6 +757,8 @@
             background: var(--gradient-primary);
             color: white;
             border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
 
         .user-type span {
@@ -586,33 +767,41 @@
             align-items: center;
             gap: 12px;
             padding: 15px;
-            border-radius: 10px;
+            border-radius: var(--radius-md);
             font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        /* ===== PAYMENT INFO ===== */
+        .user-type label:hover span {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* ===== PAYMENT INFO MODERNE ===== */
         .payment-info {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             padding: 2rem;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             margin: 2rem 0;
             border-left: 6px solid var(--secondary);
+            border: 1px solid #fcd34d;
         }
 
-        /* ===== PRICE TAG ===== */
+        /* ===== PRICE TAG MODERNE ===== */
         .price-tag {
             background: var(--gradient-secondary);
-            color: #333;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: bold;
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-full);
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             margin-top: 12px;
+            box-shadow: var(--shadow);
         }
 
-        /* ===== MODALS ===== */
+        /* ===== MODALS MODERNES ===== */
         .modal {
             display: none;
             position: fixed;
@@ -625,15 +814,23 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            backdrop-filter: blur(8px);
         }
 
         .modal-content {
             background-color: white;
             padding: 3rem;
-            border-radius: 20px;
+            border-radius: var(--radius-xl);
             max-width: 500px;
             width: 100%;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-2xl);
+            position: relative;
+            animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .modal-header {
@@ -642,7 +839,7 @@
             align-items: center;
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 2px solid var(--gray-200);
         }
 
         .close-btn {
@@ -650,38 +847,51 @@
             border: none;
             font-size: 2rem;
             cursor: pointer;
-            color: #6c757d;
+            color: var(--gray-400);
+            transition: color 0.2s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* ===== ALERTS ===== */
+        .close-btn:hover {
+            color: var(--danger);
+            background: var(--gray-100);
+        }
+
+        /* ===== ALERTS MODERNES ===== */
         .alert {
             padding: 1.2rem 1.5rem;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             margin-bottom: 2rem;
             border-left: 6px solid transparent;
+            font-weight: 500;
         }
 
         .alert-success {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #d1fae5;
+            color: #065f46;
             border-left-color: var(--success);
         }
 
         .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #fee2e2;
+            color: #991b1b;
             border-left-color: var(--danger);
         }
 
         .alert-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
+            background-color: #dbeafe;
+            color: #3730a3;
             border-left-color: var(--info);
         }
 
-        /* ===== FOOTER ===== */
+        /* ===== FOOTER MODERNE ===== */
         footer {
-            background: linear-gradient(135deg, var(--dark), #2d3748);
+            background: var(--gradient-dark);
             color: white;
             padding: 4rem 0 2rem;
             text-align: center;
@@ -696,14 +906,25 @@
 
         .social-links a {
             color: white;
-            font-size: 2rem;
+            font-size: 1.5rem;
             transition: all 0.3s ease;
             padding: 12px;
-            border-radius: 50%;
+            border-radius: var(--radius-full);
             background: rgba(255,255,255,0.1);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* ===== RESPONSIVE ===== */
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -721,7 +942,7 @@
             }
 
             .hero h1 {
-                font-size: 2.2rem;
+                font-size: 2.5rem;
             }
 
             .hero p {
@@ -755,6 +976,39 @@
                 padding: 2rem;
                 margin: 20px;
             }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* ===== ANIMATIONS SUPPLEMENTAIRES ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* ===== SCROLLBAR PERSONNALISÉE ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: var(--radius-full);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: var(--radius-full);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
         }
     </style>
 </head>
@@ -782,7 +1036,7 @@
                         <i class="fas fa-user"></i> Profil
                     </button>
                     <button class="nav-tab" onclick="showTab('panier')" id="navBasketTab">
-                        <i class="fas fa-shopping-basket"></i> Mes Invitations
+                        <i class="fas fa-shopping-basket"></i> Mes Épingles
                         <span class="notification-badge hidden" id="notificationBadge">0</span>
                     </button>
                     
@@ -865,13 +1119,13 @@
             </div>
         </section>
 
-        <!-- ===== PANIER/INVITATIONS SECTION ===== -->
+        <!-- ===== PANIER/ÉPINGLES SECTION ===== -->
         <section class="section hidden" id="panier">
             <div class="container">
-                <h2 class="section-title">Mes Invitations</h2>
+                <h2 class="section-title">Mes Épingles</h2>
                 <div class="basket-section">
-                    <div id="invitationsContainer">
-                        <!-- Invitations chargées dynamiquement -->
+                    <div id="pinnedContainer">
+                        <!-- Utilisateurs épinglés chargés dynamiquement -->
                     </div>
                 </div>
             </div>
@@ -1284,6 +1538,125 @@
             commissionRate: 10
         };
 
+        // ===== GESTION DES ÉPINGLES =====
+        function getPinnedUsers() {
+            return JSON.parse(localStorage.getItem('pinnedUsers')) || [];
+        }
+
+        function savePinnedUsers(pinnedUsers) {
+            localStorage.setItem('pinnedUsers', JSON.stringify(pinnedUsers));
+            updatePinnedBadge();
+        }
+
+        function updatePinnedBadge() {
+            const pinnedUsers = getPinnedUsers();
+            const badge = document.getElementById('notificationBadge');
+            if (pinnedUsers.length > 0) {
+                badge.textContent = pinnedUsers.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function isUserPinned(userId) {
+            const pinnedUsers = getPinnedUsers();
+            return pinnedUsers.some(user => user.id === userId);
+        }
+
+        function togglePinUser(userId, userName, userType, userPhone, userData) {
+            const pinnedUsers = getPinnedUsers();
+            const existingIndex = pinnedUsers.findIndex(user => user.id === userId);
+            
+            if (existingIndex !== -1) {
+                // Retirer l'épingle
+                pinnedUsers.splice(existingIndex, 1);
+                showAlert('formAlert', `${userName} retiré des épingles`, 'info');
+            } else {
+                // Ajouter l'épingle
+                pinnedUsers.push({
+                    id: userId,
+                    name: userName,
+                    type: userType,
+                    phone: userPhone,
+                    data: userData,
+                    pinnedAt: new Date().toISOString()
+                });
+                showAlert('formAlert', `${userName} épinglé avec succès`, 'success');
+            }
+            
+            savePinnedUsers(pinnedUsers);
+            
+            // Recharger l'affichage si on est sur la page des résultats ou du panier
+            if (document.getElementById('resultsSection').classList.contains('hidden') === false) {
+                const searchTerm = document.getElementById('searchInput').value.trim();
+                if (searchTerm) {
+                    performSearch(searchTerm);
+                }
+            }
+            if (document.getElementById('panier').classList.contains('hidden') === false) {
+                loadPinnedUsers();
+            }
+        }
+
+        function loadPinnedUsers() {
+            if (!isLoggedIn) {
+                document.getElementById('pinnedContainer').innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-thumbtack fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #6c757d;">Connectez-vous pour voir vos épingles</h3>
+                        <button class="btn btn-primary" onclick="openLoginModal()">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const pinnedUsers = getPinnedUsers();
+            const container = document.getElementById('pinnedContainer');
+            container.innerHTML = '';
+
+            if (pinnedUsers.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-thumbtack fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #6c757d;">Aucun utilisateur épinglé</h3>
+                        <p>Épinglez des professeurs ou des élèves pour les retrouver facilement ici</p>
+                    </div>
+                `;
+                return;
+            }
+
+            pinnedUsers.forEach(pinnedUser => {
+                const userElement = document.createElement('div');
+                userElement.className = 'basket-item';
+                
+                userElement.innerHTML = `
+                    <div>
+                        <strong>${pinnedUser.name}</strong>
+                        <span class="pinned-status status-pinned">
+                            <i class="fas fa-thumbtack"></i>
+                            Épinglé
+                        </span>
+                        <div style="color: #6c757d; font-size: 0.9rem; margin-top: 5px;">
+                            ${pinnedUser.type === 'teacher' ? 'Professeur' : 'Élève'} - ${pinnedUser.phone}
+                        </div>
+                    </div>
+                    <div class="basket-actions">
+                        <a href="https://wa.me/${pinnedUser.phone}" class="btn btn-whatsapp btn-sm" target="_blank">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                        <button class="btn btn-danger btn-sm" onclick="togglePinUser('${pinnedUser.id}', '${pinnedUser.name}', '${pinnedUser.type}', '${pinnedUser.phone}')">
+                            <i class="fas fa-times"></i> Retirer
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(userElement);
+            });
+        }
+
         // ===== FONCTIONS DE BASE =====
         function togglePassword(passwordFieldId) {
             const passwordField = document.getElementById(passwordFieldId);
@@ -1339,7 +1712,7 @@
 
             // Actions spécifiques selon l'onglet
             if (tabId === 'panier') {
-                loadInvitations();
+                loadPinnedUsers();
             } else if (tabId === 'modifierInfos') {
                 showModifyForm();
             } else if (tabId === 'profil') {
@@ -1602,220 +1975,7 @@
                 document.getElementById('adminNavTab').classList.add('hidden');
                 document.getElementById('adminMenuLink').classList.add('hidden');
             }
-        }
-
-        // ===== SYSTÈME D'INVITATIONS =====
-        async function sendInvitation(teacherId, teacherName) {
-            if (!isLoggedIn || currentUser.type !== 'student') {
-                showAlert('formAlert', 'Seuls les élèves peuvent envoyer des invitations', 'danger');
-                return;
-            }
-
-            try {
-                const existingInvitation = await db.collection('invitations')
-                    .where('studentId', '==', currentUser.id)
-                    .where('teacherId', '==', teacherId)
-                    .where('status', '==', 'pending')
-                    .get();
-
-                if (!existingInvitation.empty) {
-                    showAlert('formAlert', 'Vous avez déjà envoyé une invitation à ce professeur', 'info');
-                    return;
-                }
-
-                const invitation = {
-                    studentId: currentUser.id,
-                    studentName: currentUser.name,
-                    studentPhone: currentUser.phone,
-                    teacherId: teacherId,
-                    teacherName: teacherName,
-                    status: 'pending',
-                    createdAt: new Date(),
-                    respondedAt: null
-                };
-
-                await db.collection('invitations').add(invitation);
-                showAlert('formAlert', `Invitation envoyée à ${teacherName} !`, 'success');
-
-            } catch (error) {
-                console.error('Erreur envoi invitation:', error);
-                showAlert('formAlert', 'Erreur lors de l\'envoi de l\'invitation', 'danger');
-            }
-        }
-
-        async function respondToInvitation(invitationId, response) {
-            try {
-                const invitationRef = db.collection('invitations').doc(invitationId);
-                const invitationDoc = await invitationRef.get();
-                
-                if (!invitationDoc.exists) {
-                    showAlert('formAlert', 'Invitation non trouvée', 'danger');
-                    return;
-                }
-
-                const invitation = invitationDoc.data();
-
-                if (response === 'accepted') {
-                    const teacherRef = db.collection('teachers').doc(invitation.teacherId);
-                    const teacherDoc = await teacherRef.get();
-                    
-                    if (!teacherDoc.exists) {
-                        showAlert('formAlert', 'Professeur non trouvé', 'danger');
-                        return;
-                    }
-
-                    const teacher = teacherDoc.data();
-                    const currentStudents = teacher.currentStudents || 0;
-                    
-                    if (currentStudents >= teacher.maxStudents) {
-                        showAlert('formAlert', 'Vous avez atteint votre limite d\'élèves', 'warning');
-                        return;
-                    }
-
-                    await teacherRef.update({
-                        currentStudents: currentStudents + 1,
-                        updatedAt: new Date()
-                    });
-                }
-
-                await invitationRef.update({
-                    status: response,
-                    respondedAt: new Date()
-                });
-
-                const statusText = response === 'accepted' ? 'acceptée' : 'refusée';
-                showAlert('formAlert', `Invitation ${statusText} avec succès`, 'success');
-                loadInvitations();
-
-            } catch (error) {
-                console.error('Erreur réponse invitation:', error);
-                showAlert('formAlert', 'Erreur lors de la réponse', 'danger');
-            }
-        }
-
-        async function loadInvitations() {
-            if (!isLoggedIn) {
-                document.getElementById('invitationsContainer').innerHTML = `
-                    <div style="text-align: center; padding: 2rem;">
-                        <i class="fas fa-envelope fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
-                        <h3 style="color: #6c757d;">Connectez-vous pour voir vos invitations</h3>
-                        <button class="btn btn-primary" onclick="openLoginModal()">
-                            <i class="fas fa-sign-in-alt"></i> Se connecter
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            try {
-                let invitationsQuery;
-                
-                if (currentUser.type === 'student') {
-                    invitationsQuery = db.collection('invitations')
-                        .where('studentId', '==', currentUser.id)
-                        .orderBy('createdAt', 'desc');
-                } else {
-                    invitationsQuery = db.collection('invitations')
-                        .where('teacherId', '==', currentUser.id)
-                        .orderBy('createdAt', 'desc');
-                }
-
-                const snapshot = await invitationsQuery.get();
-                const container = document.getElementById('invitationsContainer');
-                container.innerHTML = '';
-
-                if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 2rem;">
-                            <i class="fas fa-envelope-open fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
-                            <h3 style="color: #6c757d;">Aucune invitation</h3>
-                            <p>${currentUser.type === 'student' 
-                                ? 'Envoyez des invitations à des professeurs' 
-                                : 'Les invitations apparaîtront ici'}</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                snapshot.forEach(doc => {
-                    const invitation = doc.data();
-                    const invitationElement = document.createElement('div');
-                    invitationElement.className = 'basket-item';
-                    
-                    if (currentUser.type === 'student') {
-                        invitationElement.innerHTML = `
-                            <div>
-                                <strong>Invitation à ${invitation.teacherName}</strong>
-                                <span class="invitation-status status-${invitation.status}">
-                                    <i class="fas fa-${getStatusIcon(invitation.status)}"></i>
-                                    ${getStatusText(invitation.status)}
-                                </span>
-                                <div style="color: #6c757d; font-size: 0.9rem; margin-top: 5px;">
-                                    Envoyée le ${invitation.createdAt.toDate().toLocaleDateString()}
-                                </div>
-                            </div>
-                            <div class="basket-actions">
-                                ${invitation.status === 'accepted' ? `
-                                    <a href="https://wa.me/${invitation.teacherPhone}" class="btn btn-whatsapp btn-sm" target="_blank">
-                                        <i class="fab fa-whatsapp"></i> Discuter
-                                    </a>
-                                ` : ''}
-                            </div>
-                        `;
-                    } else {
-                        invitationElement.innerHTML = `
-                            <div>
-                                <strong>Invitation de ${invitation.studentName}</strong>
-                                <span class="invitation-status status-${invitation.status}">
-                                    <i class="fas fa-${getStatusIcon(invitation.status)}"></i>
-                                    ${getStatusText(invitation.status)}
-                                </span>
-                                <div style="color: #6c757d; font-size: 0.9rem; margin-top: 5px;">
-                                    Reçue le ${invitation.createdAt.toDate().toLocaleDateString()}
-                                </div>
-                            </div>
-                            <div class="basket-actions">
-                                ${invitation.status === 'pending' ? `
-                                    <button class="btn btn-success btn-sm" onclick="respondToInvitation('${doc.id}', 'accepted')">
-                                        <i class="fas fa-check"></i> Accepter
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="respondToInvitation('${doc.id}', 'rejected')">
-                                        <i class="fas fa-times"></i> Refuser
-                                    </button>
-                                ` : ''}
-                                ${invitation.status === 'accepted' ? `
-                                    <a href="https://wa.me/${invitation.studentPhone}" class="btn btn-whatsapp btn-sm" target="_blank">
-                                        <i class="fab fa-whatsapp"></i> Discuter
-                                    </a>
-                                ` : ''}
-                            </div>
-                        `;
-                    }
-
-                    container.appendChild(invitationElement);
-                });
-
-            } catch (error) {
-                console.error('Erreur chargement invitations:', error);
-            }
-        }
-
-        function getStatusIcon(status) {
-            switch(status) {
-                case 'pending': return 'clock';
-                case 'accepted': return 'check-circle';
-                case 'rejected': return 'times-circle';
-                default: return 'question';
-            }
-        }
-
-        function getStatusText(status) {
-            switch(status) {
-                case 'pending': return 'En attente';
-                case 'accepted': return 'Acceptée';
-                case 'rejected': return 'Refusée';
-                default: return 'Inconnu';
-            }
+            updatePinnedBadge();
         }
 
         // ===== RECHERCHE ET AFFICHAGE =====
@@ -1826,26 +1986,55 @@
                 return;
             }
 
+            if (!searchTerm) {
+                showAlert('formAlert', 'Veuillez entrer un terme de recherche', 'danger');
+                return;
+            }
+
             try {
-                const snapshot = await db.collection('teachers').get();
-                const results = [];
+                let results = [];
                 
-                snapshot.forEach(doc => {
-                    const teacher = { id: doc.id, ...doc.data() };
+                if (currentUser.type === 'student') {
+                    // Les élèves recherchent des professeurs
+                    const snapshot = await db.collection('teachers').get();
                     
-                    if (!teacher.banned && teacher.verified && teacher.visible !== false) {
-                        const isSaturated = (teacher.currentStudents || 0) >= teacher.maxStudents;
-                        const searchLower = searchTerm.toLowerCase();
-                        const matches = 
-                            teacher.subjects?.some(s => s.toLowerCase().includes(searchLower)) ||
-                            teacher.name.toLowerCase().includes(searchLower) ||
-                            teacher.classLevels?.some(level => level.toLowerCase().includes(searchLower));
+                    snapshot.forEach(doc => {
+                        const teacher = { id: doc.id, ...doc.data() };
                         
-                        if (matches) {
-                            results.push({ ...teacher, saturated: isSaturated });
+                        if (!teacher.banned && teacher.verified && teacher.visible !== false) {
+                            const isSaturated = (teacher.currentStudents || 0) >= teacher.maxStudents;
+                            const searchLower = searchTerm.toLowerCase();
+                            const matches = 
+                                teacher.subjects?.some(s => s.toLowerCase().includes(searchLower)) ||
+                                teacher.name.toLowerCase().includes(searchLower) ||
+                                teacher.classLevels?.some(level => level.toLowerCase().includes(searchLower));
+                            
+                            if (matches) {
+                                results.push({ ...teacher, saturated: isSaturated, type: 'teacher' });
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    // Les professeurs recherchent des élèves
+                    const snapshot = await db.collection('students').get();
+                    
+                    snapshot.forEach(doc => {
+                        const student = { id: doc.id, ...doc.data() };
+                        
+                        if (!student.banned) {
+                            const searchLower = searchTerm.toLowerCase();
+                            const matches = 
+                                student.name.toLowerCase().includes(searchLower) ||
+                                student.level.toLowerCase().includes(searchLower) ||
+                                student.class.toLowerCase().includes(searchLower) ||
+                                student.school.toLowerCase().includes(searchLower);
+                            
+                            if (matches) {
+                                results.push({ ...student, type: 'student' });
+                            }
+                        }
+                    });
+                }
 
                 displaySearchResults(results, searchTerm);
 
@@ -1855,82 +2044,138 @@
             }
         }
 
-        function displaySearchResults(teachers, searchTerm) {
+        function displaySearchResults(users, searchTerm) {
             const container = document.getElementById('resultsContainer');
             container.innerHTML = '';
 
-            document.getElementById('resultsTitle').textContent = teachers.length > 0 
-                ? `${teachers.length} Professeur(s) Trouvé(s)` 
-                : 'Aucun professeur trouvé';
+            document.getElementById('resultsTitle').textContent = users.length > 0 
+                ? `${users.length} Résultat(s) Trouvé(s)` 
+                : 'Aucun résultat trouvé';
 
-            if (teachers.length === 0) {
+            if (users.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 3rem;">
                         <i class="fas fa-search fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
-                        <h3 style="color: #6c757d;">Aucun professeur trouvé</h3>
-                        <p>Essayez avec d'autres termes comme "Mathématiques", "Français", "Physique"...</p>
+                        <h3 style="color: #6c757d;">Aucun résultat trouvé</h3>
+                        <p>Essayez avec d'autres termes de recherche</p>
                     </div>
                 `;
                 return;
             }
 
-            teachers.forEach(teacher => {
-                const price = currentUser?.level === 'primaire' ? platformSettings.primaryPrice : platformSettings.secondaryPrice;
-                const ratingStars = generateRatingStars(teacher.rating);
-                const isSaturated = teacher.saturated;
+            users.forEach(user => {
+                const isPinned = isUserPinned(user.id);
+                const userCard = document.createElement('div');
+                
+                if (user.type === 'teacher') {
+                    const price = currentUser?.level === 'primaire' ? platformSettings.primaryPrice : platformSettings.secondaryPrice;
+                    const ratingStars = generateRatingStars(user.rating);
+                    const isSaturated = user.saturated;
 
-                const teacherCard = document.createElement('div');
-                teacherCard.className = `teacher-card ${isSaturated ? 'teacher-saturated' : ''}`;
-                teacherCard.innerHTML = `
-                    <h3>${teacher.name} 
-                        <span class="availability-status ${teacher.available && !isSaturated ? 'available' : 'unavailable'}">
-                            <i class="fas ${teacher.available && !isSaturated ? 'fa-check' : 'fa-pause'}"></i>
-                            ${isSaturated ? 'Saturé' : (teacher.available ? 'Disponible' : 'Indisponible')}
-                        </span>
-                    </h3>
-                    <div class="rating">
-                        ${ratingStars}
-                        <span class="rating-value">${teacher.rating?.toFixed(1) || '0.0'}</span>
-                        <span style="color: #6c757d; margin-left: 8px;">(${teacher.totalRatings || 0} avis)</span>
-                    </div>
-                    <div class="teacher-info">
-                        <div class="info-item">
-                            <i class="fas fa-book"></i>
-                            <span><strong>Matières:</strong> ${teacher.subjects?.join(', ') || 'Non spécifié'}</span>
+                    userCard.className = `teacher-card ${isSaturated ? 'teacher-saturated' : ''}`;
+                    userCard.innerHTML = `
+                        <h3>${user.name} 
+                            <span class="availability-status ${user.available && !isSaturated ? 'available' : 'unavailable'}">
+                                <i class="fas ${user.available && !isSaturated ? 'fa-check' : 'fa-pause'}"></i>
+                                ${isSaturated ? 'Saturé' : (user.available ? 'Disponible' : 'Indisponible')}
+                            </span>
+                            ${isPinned ? `
+                                <span class="pinned-status status-pinned">
+                                    <i class="fas fa-thumbtack"></i>
+                                    Épinglé
+                                </span>
+                            ` : ''}
+                        </h3>
+                        <div class="rating">
+                            ${ratingStars}
+                            <span class="rating-value">${user.rating?.toFixed(1) || '0.0'}</span>
+                            <span style="color: #6c757d; margin-left: 8px;">(${user.totalRatings || 0} avis)</span>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span><strong>Niveaux:</strong> ${teacher.classLevels?.join(', ') || 'Non spécifié'}</span>
+                        <div class="teacher-info">
+                            <div class="info-item">
+                                <i class="fas fa-book"></i>
+                                <span><strong>Matières:</strong> ${user.subjects?.join(', ') || 'Non spécifié'}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span><strong>Niveaux:</strong> ${user.classLevels?.join(', ') || 'Non spécifié'}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-users"></i>
+                                <span><strong>Élèves:</strong> ${user.currentStudents || 0}/${user.maxStudents || 0}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-school"></i>
+                                <span><strong>Formation:</strong> ${user.school}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span><strong>Zone:</strong> ${user.address}</span>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-users"></i>
-                            <span><strong>Élèves:</strong> ${teacher.currentStudents || 0}/${teacher.maxStudents || 0}</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-school"></i>
-                            <span><strong>Formation:</strong> ${teacher.school}</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span><strong>Zone:</strong> ${teacher.address}</span>
-                        </div>
-                    </div>
-                    <div class="price-tag">${price}$/séance</div>
-                    <div class="teacher-actions">
-                        ${currentUser.type === 'student' && !isSaturated ? `
-                            <button class="btn btn-invite" onclick="sendInvitation('${teacher.id}', '${teacher.name}')">
-                                <i class="fas fa-paper-plane"></i> Inviter
+                        <div class="price-tag">${price}$/séance</div>
+                        <div class="teacher-actions">
+                            <a href="https://wa.me/${user.phone}" class="btn btn-whatsapp" target="_blank">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </a>
+                            <button class="btn btn-pin ${isPinned ? 'btn-danger' : ''}" onclick="togglePinUser('${user.id}', '${user.name}', 'teacher', '${user.phone}', ${JSON.stringify(user).replace(/'/g, "\\'")})">
+                                <i class="fas ${isPinned ? 'fa-times' : 'fa-thumbtack'}"></i>
+                                ${isPinned ? 'Retirer' : 'Épingler'}
                             </button>
-                        ` : ''}
-                        ${isSaturated ? `
-                            <button class="btn btn-secondary" disabled>
-                                <i class="fas fa-users"></i> Complet
+                            ${isSaturated ? `
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="fas fa-users"></i> Complet
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    // Carte pour les élèves
+                    userCard.className = 'student-card';
+                    userCard.innerHTML = `
+                        <h3>${user.name}
+                            ${isPinned ? `
+                                <span class="pinned-status status-pinned">
+                                    <i class="fas fa-thumbtack"></i>
+                                    Épinglé
+                                </span>
+                            ` : ''}
+                        </h3>
+                        <div class="student-info">
+                            <div class="info-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span><strong>Niveau:</strong> ${user.level}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-school"></i>
+                                <span><strong>Classe:</strong> ${user.class}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-university"></i>
+                                <span><strong>Établissement:</strong> ${user.school}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-birthday-cake"></i>
+                                <span><strong>Âge:</strong> ${user.age} ans</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span><strong>Adresse:</strong> ${user.address}</span>
+                            </div>
+                        </div>
+                        <div class="student-actions">
+                            <a href="https://wa.me/${user.phone}" class="btn btn-whatsapp" target="_blank">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </a>
+                            <button class="btn btn-pin ${isPinned ? 'btn-danger' : ''}" onclick="togglePinUser('${user.id}', '${user.name}', 'student', '${user.phone}', ${JSON.stringify(user).replace(/'/g, "\\'")})">
+                                <i class="fas ${isPinned ? 'fa-times' : 'fa-thumbtack'}"></i>
+                                ${isPinned ? 'Retirer' : 'Épingler'}
                             </button>
-                        ` : ''}
-                    </div>
-                `;
+                        </div>
+                    `;
+                }
 
-                container.appendChild(teacherCard);
+                container.appendChild(userCard);
             });
 
             document.getElementById('resultsSection').classList.remove('hidden');
@@ -2300,6 +2545,7 @@
             }
         }
 
+        // ===== FONCTIONS ADMIN CORRIGÉES =====
         async function loadAdminPanel() {
             if (!isLoggedIn || currentUser.type !== 'admin') {
                 document.getElementById('usersList').innerHTML = '<p>Accès réservé aux administrateurs</p>';
@@ -2333,7 +2579,7 @@
                                 </div>
                             </div>
                             <div class="user-actions">
-                                <button class="btn btn-danger btn-sm" onclick="banUser('students', '${doc.id}')">
+                                <button class="btn btn-danger btn-sm" onclick="banUser('students', '${doc.id}', '${student.name}')">
                                     <i class="fas fa-ban"></i> Bannir
                                 </button>
                             </div>
@@ -2352,7 +2598,7 @@
                                 </div>
                             </div>
                             <div class="user-actions">
-                                <button class="btn btn-danger btn-sm" onclick="banUser('teachers', '${doc.id}')">
+                                <button class="btn btn-danger btn-sm" onclick="banUser('teachers', '${doc.id}', '${teacher.name}')">
                                     <i class="fas fa-ban"></i> Bannir
                                 </button>
                             </div>
@@ -2371,15 +2617,16 @@
             }
         }
 
-        async function banUser(collection, userId) {
-            if (confirm('Êtes-vous sûr de vouloir bannir cet utilisateur ?')) {
+        // ===== FONCTION BAN USER CORRIGÉE =====
+        async function banUser(collection, userId, userName) {
+            if (confirm(`Êtes-vous sûr de vouloir bannir ${userName} ?`)) {
                 try {
                     await db.collection(collection).doc(userId).update({
                         banned: true,
                         bannedAt: new Date()
                     });
-                    showAlert('formAlert', 'Utilisateur banni avec succès', 'success');
-                    loadAdminPanel();
+                    showAlert('formAlert', 'User banned', 'success');
+                    loadAdminPanel(); // Recharger le panel admin
                 } catch (error) {
                     console.error('Erreur bannissement:', error);
                     showAlert('formAlert', 'Erreur lors du bannissement', 'danger');
@@ -2540,6 +2787,7 @@
             }
         }
 
+        // Initialiser l'application au chargement
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
         });
