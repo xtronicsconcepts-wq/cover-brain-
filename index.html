@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -553,6 +553,50 @@
             font-size: 0.8rem;
             font-weight: 700;
             z-index: 2;
+        }
+
+        /* ===== RATING STYLES ===== */
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 1rem 0;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .rating-stars i {
+            color: #ffc107;
+            font-size: 1.2rem;
+        }
+
+        .rating-value {
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        .rating-count {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .rate-teacher-btn {
+            background: var(--gradient-warning);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .rate-teacher-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
 
         /* ===== PANIER SECTION MODERNE ===== */
@@ -1509,6 +1553,37 @@
         </div>
     </div>
 
+    <!-- ===== RATING MODAL ===== -->
+    <div class="modal" id="ratingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Noter le professeur</h2>
+                <button class="close-btn" onclick="closeRatingModal()">&times;</button>
+            </div>
+            <div id="ratingAlert" class="alert hidden"></div>
+            <div class="form-group">
+                <label>Notez <span id="teacherToRateName"></span></label>
+                <div class="rating-stars" id="ratingStars">
+                    <i class="far fa-star" data-rating="1"></i>
+                    <i class="far fa-star" data-rating="2"></i>
+                    <i class="far fa-star" data-rating="3"></i>
+                    <i class="far fa-star" data-rating="4"></i>
+                    <i class="far fa-star" data-rating="5"></i>
+                </div>
+                <div style="margin-top: 10px;">
+                    <span id="selectedRatingText">Sélectionnez une note</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="ratingComment">Commentaire (optionnel)</label>
+                <textarea id="ratingComment" class="form-control" placeholder="Partagez votre expérience avec ce professeur..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="submitRating()">
+                <i class="fas fa-star"></i> Soumettre l'avis
+            </button>
+        </div>
+    </div>
+
     <script>
         // ===== FIREBASE CONFIGURATION =====
         const firebaseConfig = {
@@ -1539,6 +1614,8 @@
             secondaryPrice: 7,
             commissionRate: 10
         };
+        let currentRatingTeacher = null;
+        let selectedRating = 0;
 
         // ===== GESTION DES ÉPINGLES (UNIQUEMENT POUR ÉLÈVES) =====
         function getPinnedTeachers() {
@@ -2030,25 +2107,9 @@
                         }
                     });
                 } else {
-                    // Les professeurs recherchent des élèves
-                    const snapshot = await db.collection('students').get();
-                    
-                    snapshot.forEach(doc => {
-                        const student = { id: doc.id, ...doc.data() };
-                        
-                        if (!student.banned) {
-                            const searchLower = searchTerm.toLowerCase();
-                            const matches = 
-                                student.name.toLowerCase().includes(searchLower) ||
-                                student.level.toLowerCase().includes(searchLower) ||
-                                student.class.toLowerCase().includes(searchLower) ||
-                                student.school.toLowerCase().includes(searchLower);
-                            
-                            if (matches) {
-                                results.push({ ...student, type: 'student' });
-                            }
-                        }
-                    });
+                    // Les professeurs recherchent des élèves - SUPPRIMER LA BARRE DE RECHERCHE
+                    showAlert('formAlert', 'La recherche est désactivée pour les professeurs', 'info');
+                    return;
                 }
 
                 displaySearchResults(results, searchTerm);
@@ -2138,6 +2199,9 @@
                                     <i class="fas ${isPinned ? 'fa-times' : 'fa-thumbtack'}"></i>
                                     ${isPinned ? 'Retirer' : 'Épingler'}
                                 </button>
+                                <button class="btn btn-primary" onclick="openRatingModal('${user.id}', '${user.name}')">
+                                    <i class="fas fa-star"></i> Noter
+                                </button>
                             ` : ''}
                             ${isSaturated ? `
                                 <button class="btn btn-secondary" disabled>
@@ -2147,36 +2211,13 @@
                         </div>
                     `;
                 } else {
-                    // Carte pour les élèves (vue professeur)
+                    // Carte pour les élèves (vue professeur) - DÉSACTIVÉE
                     userCard.className = 'student-card';
                     userCard.innerHTML = `
-                        <h3>${user.name}</h3>
-                        <div class="student-info">
-                            <div class="info-item">
-                                <i class="fas fa-graduation-cap"></i>
-                                <span><strong>Niveau:</strong> ${user.level}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-school"></i>
-                                <span><strong>Classe:</strong> ${user.class}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-university"></i>
-                                <span><strong>Établissement:</strong> ${user.school}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-birthday-cake"></i>
-                                <span><strong>Âge:</strong> ${user.age} ans</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span><strong>Adresse:</strong> ${user.address}</span>
-                            </div>
-                        </div>
-                        <div class="student-actions">
-                            <a href="https://wa.me/${user.phone}?text=${encodeURIComponent(`Bonjour ${user.name} 👋\n\nJe suis ${currentUser.name}, professeur sur Cover Brain.\n\nJ'ai vu votre profil et je serais intéressé pour vous proposer un soutien scolaire.\n\nPouvons-nous discuter de vos besoins ?`)}" class="btn btn-whatsapp" target="_blank">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
-                            </a>
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-search fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                            <h3 style="color: #6c757d;">Recherche désactivée</h3>
+                            <p>La recherche d'élèves n'est pas disponible pour les professeurs</p>
                         </div>
                     `;
                 }
@@ -2207,6 +2248,184 @@
             }
             
             return stars;
+        }
+
+        // ===== SYSTÈME DE NOTATION =====
+        function openRatingModal(teacherId, teacherName) {
+            if (!isLoggedIn || currentUser.type !== 'student') {
+                showAlert('formAlert', 'Seuls les élèves peuvent noter les professeurs', 'danger');
+                return;
+            }
+
+            currentRatingTeacher = { id: teacherId, name: teacherName };
+            selectedRating = 0;
+            
+            document.getElementById('teacherToRateName').textContent = teacherName;
+            document.getElementById('selectedRatingText').textContent = 'Sélectionnez une note';
+            document.getElementById('ratingComment').value = '';
+            
+            // Réinitialiser les étoiles
+            const stars = document.querySelectorAll('#ratingStars i');
+            stars.forEach(star => {
+                star.className = 'far fa-star';
+            });
+            
+            document.getElementById('ratingModal').style.display = 'flex';
+            document.getElementById('ratingAlert').classList.add('hidden');
+            
+            // Ajouter les écouteurs d'événements pour les étoiles
+            setupRatingStars();
+        }
+
+        function closeRatingModal() {
+            document.getElementById('ratingModal').style.display = 'none';
+            currentRatingTeacher = null;
+            selectedRating = 0;
+        }
+
+        function setupRatingStars() {
+            const stars = document.querySelectorAll('#ratingStars i');
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    highlightStars(rating);
+                });
+                
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.getAttribute('data-rating'));
+                    highlightStars(selectedRating);
+                    updateRatingText(selectedRating);
+                });
+            });
+
+            // Réinitialiser quand la souris quitte
+            document.getElementById('ratingStars').addEventListener('mouseleave', function() {
+                if (selectedRating === 0) {
+                    highlightStars(0);
+                } else {
+                    highlightStars(selectedRating);
+                }
+            });
+        }
+
+        function highlightStars(rating) {
+            const stars = document.querySelectorAll('#ratingStars i');
+            stars.forEach(star => {
+                const starRating = parseInt(star.getAttribute('data-rating'));
+                if (starRating <= rating) {
+                    star.className = 'fas fa-star';
+                    star.style.color = '#ffc107';
+                } else {
+                    star.className = 'far fa-star';
+                    star.style.color = '#ffc107';
+                }
+            });
+        }
+
+        function updateRatingText(rating) {
+            const texts = [
+                'Sélectionnez une note',
+                'Très mauvais',
+                'Mauvais',
+                'Moyen',
+                'Bon',
+                'Excellent'
+            ];
+            document.getElementById('selectedRatingText').textContent = texts[rating];
+        }
+
+        async function submitRating() {
+            if (!selectedRating) {
+                showAlert('ratingAlert', 'Veuillez sélectionner une note', 'danger');
+                return;
+            }
+
+            try {
+                const ratingData = {
+                    teacherId: currentRatingTeacher.id,
+                    teacherName: currentRatingTeacher.name,
+                    studentId: currentUser.id,
+                    studentName: currentUser.name,
+                    rating: selectedRating,
+                    comment: document.getElementById('ratingComment').value.trim(),
+                    createdAt: new Date()
+                };
+
+                // Sauvegarder l'avis
+                await db.collection('ratings').add(ratingData);
+
+                // Mettre à jour la note moyenne du professeur
+                await updateTeacherRating(currentRatingTeacher.id);
+
+                showAlert('ratingAlert', 'Merci pour votre avis!', 'success');
+                
+                setTimeout(() => {
+                    closeRatingModal();
+                    // Recharger les résultats si on est sur la page de recherche
+                    const searchTerm = document.getElementById('searchInput').value.trim();
+                    if (searchTerm) {
+                        performSearch(searchTerm);
+                    }
+                }, 1500);
+
+            } catch (error) {
+                console.error('Erreur soumission note:', error);
+                showAlert('ratingAlert', 'Erreur lors de la soumission', 'danger');
+            }
+        }
+
+        async function updateTeacherRating(teacherId) {
+            try {
+                // Récupérer tous les avis pour ce professeur
+                const ratingsSnapshot = await db.collection('ratings')
+                    .where('teacherId', '==', teacherId)
+                    .get();
+
+                let totalRating = 0;
+                let ratingCount = 0;
+
+                ratingsSnapshot.forEach(doc => {
+                    const rating = doc.data();
+                    totalRating += rating.rating;
+                    ratingCount++;
+                });
+
+                const averageRating = ratingCount > 0 ? totalRating / ratingCount : 0;
+
+                // Mettre à jour le professeur
+                await db.collection('teachers').doc(teacherId).update({
+                    rating: averageRating,
+                    totalRatings: ratingCount
+                });
+
+            } catch (error) {
+                console.error('Erreur mise à jour note professeur:', error);
+            }
+        }
+
+        // ===== BOUTON DE VISIBILITÉ POUR LES PROFESSEURS =====
+        async function toggleTeacherVisibility() {
+            if (!isLoggedIn || currentUser.type !== 'teacher') {
+                return;
+            }
+
+            try {
+                const teacherDoc = await db.collection('teachers').doc(currentUser.id).get();
+                const currentVisibility = teacherDoc.data().visible;
+                
+                await db.collection('teachers').doc(currentUser.id).update({
+                    visible: !currentVisibility
+                });
+
+                showAlert('formAlert', `Votre profil est maintenant ${!currentVisibility ? 'visible' : 'invisible'}`, 'success');
+                
+                // Recharger le profil
+                showProfile();
+
+            } catch (error) {
+                console.error('Erreur changement visibilité:', error);
+                showAlert('formAlert', 'Erreur lors du changement de visibilité', 'danger');
+            }
         }
 
         // ===== FONCTIONS UTILITAIRES =====
@@ -2528,15 +2747,32 @@
                                 <i class="fas fa-star"></i>
                                 <span><strong>Note:</strong> ${userData.rating?.toFixed(1) || '0.0'}/5 (${userData.totalRatings || 0} avis)</span>
                             </div>
+                            <div class="info-item">
+                                <i class="fas fa-eye"></i>
+                                <span><strong>Visibilité:</strong> ${userData.visible !== false ? 'Visible' : 'Invisible'}</span>
+                            </div>
                     `;
                 }
 
                 profileHtml += `
                         </div>
-                        <div class="profile-actions" style="margin-top: 2rem;">
+                        <div class="profile-actions" style="margin-top: 2rem; display: flex; gap: 15px; flex-wrap: wrap;">
                             <button class="btn btn-primary" onclick="showTab('modifierInfos')">
                                 <i class="fas fa-edit"></i> Modifier mes informations
                             </button>
+                `;
+
+                // Ajouter le bouton de visibilité pour les professeurs
+                if (currentUser.type === 'teacher') {
+                    profileHtml += `
+                            <button class="btn ${userData.visible !== false ? 'btn-warning' : 'btn-success'}" onclick="toggleTeacherVisibility()">
+                                <i class="fas fa-eye${userData.visible !== false ? '-slash' : ''}"></i>
+                                ${userData.visible !== false ? 'Rendre invisible' : 'Rendre visible'}
+                            </button>
+                    `;
+                }
+
+                profileHtml += `
                         </div>
                     </div>
                 `;
