@@ -1035,8 +1035,10 @@
                     <button class="nav-tab" onclick="showTab('profil')" id="navProfileTab">
                         <i class="fas fa-user"></i> Profil
                     </button>
-                    <button class="nav-tab" onclick="showTab('panier')" id="navBasketTab">
-                        <i class="fas fa-shopping-basket"></i> Mes Épingles
+                    
+                    <!-- Onglet Mes Épingles - Uniquement pour les élèves -->
+                    <button class="nav-tab hidden" onclick="showTab('panier')" id="navBasketTab">
+                        <i class="fas fa-thumbtack"></i> Mes Épingles
                         <span class="notification-badge hidden" id="notificationBadge">0</span>
                     </button>
                     
@@ -1119,13 +1121,13 @@
             </div>
         </section>
 
-        <!-- ===== PANIER/ÉPINGLES SECTION ===== -->
+        <!-- ===== PANIER/ÉPINGLES SECTION (UNIQUEMENT POUR ÉLÈVES) ===== -->
         <section class="section hidden" id="panier">
             <div class="container">
                 <h2 class="section-title">Mes Épingles</h2>
                 <div class="basket-section">
                     <div id="pinnedContainer">
-                        <!-- Utilisateurs épinglés chargés dynamiquement -->
+                        <!-- Professeurs épinglés chargés dynamiquement -->
                     </div>
                 </div>
             </div>
@@ -1538,54 +1540,60 @@
             commissionRate: 10
         };
 
-        // ===== GESTION DES ÉPINGLES =====
-        function getPinnedUsers() {
-            return JSON.parse(localStorage.getItem('pinnedUsers')) || [];
+        // ===== GESTION DES ÉPINGLES (UNIQUEMENT POUR ÉLÈVES) =====
+        function getPinnedTeachers() {
+            return JSON.parse(localStorage.getItem('pinnedTeachers')) || [];
         }
 
-        function savePinnedUsers(pinnedUsers) {
-            localStorage.setItem('pinnedUsers', JSON.stringify(pinnedUsers));
+        function savePinnedTeachers(pinnedTeachers) {
+            localStorage.setItem('pinnedTeachers', JSON.stringify(pinnedTeachers));
             updatePinnedBadge();
         }
 
         function updatePinnedBadge() {
-            const pinnedUsers = getPinnedUsers();
-            const badge = document.getElementById('notificationBadge');
-            if (pinnedUsers.length > 0) {
-                badge.textContent = pinnedUsers.length;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
+            if (currentUser && currentUser.type === 'student') {
+                const pinnedTeachers = getPinnedTeachers();
+                const badge = document.getElementById('notificationBadge');
+                if (pinnedTeachers.length > 0) {
+                    badge.textContent = pinnedTeachers.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
             }
         }
 
-        function isUserPinned(userId) {
-            const pinnedUsers = getPinnedUsers();
-            return pinnedUsers.some(user => user.id === userId);
+        function isTeacherPinned(teacherId) {
+            const pinnedTeachers = getPinnedTeachers();
+            return pinnedTeachers.some(teacher => teacher.id === teacherId);
         }
 
-        function togglePinUser(userId, userName, userType, userPhone, userData) {
-            const pinnedUsers = getPinnedUsers();
-            const existingIndex = pinnedUsers.findIndex(user => user.id === userId);
+        function togglePinTeacher(teacherId, teacherName, teacherPhone, teacherData) {
+            if (!isLoggedIn || currentUser.type !== 'student') {
+                showAlert('formAlert', 'Seuls les élèves peuvent épingler des professeurs', 'danger');
+                return;
+            }
+
+            const pinnedTeachers = getPinnedTeachers();
+            const existingIndex = pinnedTeachers.findIndex(teacher => teacher.id === teacherId);
             
             if (existingIndex !== -1) {
                 // Retirer l'épingle
-                pinnedUsers.splice(existingIndex, 1);
-                showAlert('formAlert', `${userName} retiré des épingles`, 'info');
+                pinnedTeachers.splice(existingIndex, 1);
+                showAlert('formAlert', `${teacherName} retiré des épingles`, 'info');
             } else {
                 // Ajouter l'épingle
-                pinnedUsers.push({
-                    id: userId,
-                    name: userName,
-                    type: userType,
-                    phone: userPhone,
-                    data: userData,
+                pinnedTeachers.push({
+                    id: teacherId,
+                    name: teacherName,
+                    phone: teacherPhone,
+                    data: teacherData,
                     pinnedAt: new Date().toISOString()
                 });
-                showAlert('formAlert', `${userName} épinglé avec succès`, 'success');
+                showAlert('formAlert', `${teacherName} épinglé avec succès`, 'success');
             }
             
-            savePinnedUsers(pinnedUsers);
+            savePinnedTeachers(pinnedTeachers);
             
             // Recharger l'affichage si on est sur la page des résultats ou du panier
             if (document.getElementById('resultsSection').classList.contains('hidden') === false) {
@@ -1595,65 +1603,66 @@
                 }
             }
             if (document.getElementById('panier').classList.contains('hidden') === false) {
-                loadPinnedUsers();
+                loadPinnedTeachers();
             }
         }
 
-        function loadPinnedUsers() {
-            if (!isLoggedIn) {
+        function loadPinnedTeachers() {
+            if (!isLoggedIn || currentUser.type !== 'student') {
                 document.getElementById('pinnedContainer').innerHTML = `
                     <div style="text-align: center; padding: 2rem;">
                         <i class="fas fa-thumbtack fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
-                        <h3 style="color: #6c757d;">Connectez-vous pour voir vos épingles</h3>
-                        <button class="btn btn-primary" onclick="openLoginModal()">
-                            <i class="fas fa-sign-in-alt"></i> Se connecter
-                        </button>
+                        <h3 style="color: #6c757d;">Fonction réservée aux élèves</h3>
+                        <p>Seuls les élèves peuvent épingler des professeurs</p>
                     </div>
                 `;
                 return;
             }
 
-            const pinnedUsers = getPinnedUsers();
+            const pinnedTeachers = getPinnedTeachers();
             const container = document.getElementById('pinnedContainer');
             container.innerHTML = '';
 
-            if (pinnedUsers.length === 0) {
+            if (pinnedTeachers.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 2rem;">
                         <i class="fas fa-thumbtack fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
-                        <h3 style="color: #6c757d;">Aucun utilisateur épinglé</h3>
-                        <p>Épinglez des professeurs ou des élèves pour les retrouver facilement ici</p>
+                        <h3 style="color: #6c757d;">Aucun professeur épinglé</h3>
+                        <p>Épinglez des professeurs pour les retrouver facilement ici</p>
                     </div>
                 `;
                 return;
             }
 
-            pinnedUsers.forEach(pinnedUser => {
-                const userElement = document.createElement('div');
-                userElement.className = 'basket-item';
+            pinnedTeachers.forEach(teacher => {
+                const teacherElement = document.createElement('div');
+                teacherElement.className = 'basket-item';
                 
-                userElement.innerHTML = `
+                teacherElement.innerHTML = `
                     <div>
-                        <strong>${pinnedUser.name}</strong>
+                        <strong>${teacher.name}</strong>
                         <span class="pinned-status status-pinned">
                             <i class="fas fa-thumbtack"></i>
                             Épinglé
                         </span>
                         <div style="color: #6c757d; font-size: 0.9rem; margin-top: 5px;">
-                            ${pinnedUser.type === 'teacher' ? 'Professeur' : 'Élève'} - ${pinnedUser.phone}
+                            ${teacher.data.subjects?.join(', ') || 'Matières non spécifiées'}
+                        </div>
+                        <div style="color: #6c757d; font-size: 0.9rem;">
+                            ${teacher.data.school || 'Établissement non spécifié'}
                         </div>
                     </div>
                     <div class="basket-actions">
-                        <a href="https://wa.me/${pinnedUser.phone}" class="btn btn-whatsapp btn-sm" target="_blank">
+                        <a href="https://wa.me/${teacher.phone}?text=${encodeURIComponent(`Bonjour ${teacher.name} 👋\n\nJe suis intéressé(e) par vos cours ${teacher.data.subjects?.join(', ')} sur Cover Brain.\n\nPouvez-vous me donner plus d'informations sur vos disponibilités et tarifs ?\n\nMerci !`)}" class="btn btn-whatsapp btn-sm" target="_blank">
                             <i class="fab fa-whatsapp"></i> WhatsApp
                         </a>
-                        <button class="btn btn-danger btn-sm" onclick="togglePinUser('${pinnedUser.id}', '${pinnedUser.name}', '${pinnedUser.type}', '${pinnedUser.phone}')">
+                        <button class="btn btn-danger btn-sm" onclick="togglePinTeacher('${teacher.id}', '${teacher.name}', '${teacher.phone}', ${JSON.stringify(teacher.data).replace(/'/g, "\\'")})">
                             <i class="fas fa-times"></i> Retirer
                         </button>
                     </div>
                 `;
 
-                container.appendChild(userElement);
+                container.appendChild(teacherElement);
             });
         }
 
@@ -1712,7 +1721,7 @@
 
             // Actions spécifiques selon l'onglet
             if (tabId === 'panier') {
-                loadPinnedUsers();
+                loadPinnedTeachers();
             } else if (tabId === 'modifierInfos') {
                 showModifyForm();
             } else if (tabId === 'profil') {
@@ -1956,8 +1965,14 @@
                 document.getElementById('userNavItem').classList.remove('hidden');
                 document.getElementById('logoutNavItem').classList.remove('hidden');
                 document.getElementById('loginNavItem').classList.add('hidden');
-                document.getElementById('navBasketTab').classList.remove('hidden');
                 document.getElementById('navModifyTab').classList.remove('hidden');
+
+                // Afficher l'onglet "Mes Épingles" uniquement pour les élèves
+                if (currentUser.type === 'student') {
+                    document.getElementById('navBasketTab').classList.remove('hidden');
+                } else {
+                    document.getElementById('navBasketTab').classList.add('hidden');
+                }
 
                 if (currentUser.type === 'admin') {
                     document.getElementById('adminNavTab').classList.remove('hidden');
@@ -2064,10 +2079,10 @@
             }
 
             users.forEach(user => {
-                const isPinned = isUserPinned(user.id);
                 const userCard = document.createElement('div');
                 
                 if (user.type === 'teacher') {
+                    const isPinned = isTeacherPinned(user.id);
                     const price = currentUser?.level === 'primaire' ? platformSettings.primaryPrice : platformSettings.secondaryPrice;
                     const ratingStars = generateRatingStars(user.rating);
                     const isSaturated = user.saturated;
@@ -2115,13 +2130,15 @@
                         </div>
                         <div class="price-tag">${price}$/séance</div>
                         <div class="teacher-actions">
-                            <a href="https://wa.me/${user.phone}" class="btn btn-whatsapp" target="_blank">
+                            <a href="https://wa.me/${user.phone}?text=${encodeURIComponent(`Bonjour ${user.name} 👋\n\nJe suis intéressé(e) par vos cours ${user.subjects?.join(', ')} sur Cover Brain.\n\nPouvez-vous me donner plus d'informations sur vos disponibilités et tarifs ?\n\nMerci !`)}" class="btn btn-whatsapp" target="_blank">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
-                            <button class="btn btn-pin ${isPinned ? 'btn-danger' : ''}" onclick="togglePinUser('${user.id}', '${user.name}', 'teacher', '${user.phone}', ${JSON.stringify(user).replace(/'/g, "\\'")})">
-                                <i class="fas ${isPinned ? 'fa-times' : 'fa-thumbtack'}"></i>
-                                ${isPinned ? 'Retirer' : 'Épingler'}
-                            </button>
+                            ${currentUser.type === 'student' ? `
+                                <button class="btn btn-pin ${isPinned ? 'btn-danger' : ''}" onclick="togglePinTeacher('${user.id}', '${user.name}', '${user.phone}', ${JSON.stringify(user).replace(/'/g, "\\'")})">
+                                    <i class="fas ${isPinned ? 'fa-times' : 'fa-thumbtack'}"></i>
+                                    ${isPinned ? 'Retirer' : 'Épingler'}
+                                </button>
+                            ` : ''}
                             ${isSaturated ? `
                                 <button class="btn btn-secondary" disabled>
                                     <i class="fas fa-users"></i> Complet
@@ -2130,17 +2147,10 @@
                         </div>
                     `;
                 } else {
-                    // Carte pour les élèves
+                    // Carte pour les élèves (vue professeur)
                     userCard.className = 'student-card';
                     userCard.innerHTML = `
-                        <h3>${user.name}
-                            ${isPinned ? `
-                                <span class="pinned-status status-pinned">
-                                    <i class="fas fa-thumbtack"></i>
-                                    Épinglé
-                                </span>
-                            ` : ''}
-                        </h3>
+                        <h3>${user.name}</h3>
                         <div class="student-info">
                             <div class="info-item">
                                 <i class="fas fa-graduation-cap"></i>
@@ -2164,13 +2174,9 @@
                             </div>
                         </div>
                         <div class="student-actions">
-                            <a href="https://wa.me/${user.phone}" class="btn btn-whatsapp" target="_blank">
+                            <a href="https://wa.me/${user.phone}?text=${encodeURIComponent(`Bonjour ${user.name} 👋\n\nJe suis ${currentUser.name}, professeur sur Cover Brain.\n\nJ'ai vu votre profil et je serais intéressé pour vous proposer un soutien scolaire.\n\nPouvons-nous discuter de vos besoins ?`)}" class="btn btn-whatsapp" target="_blank">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
-                            <button class="btn btn-pin ${isPinned ? 'btn-danger' : ''}" onclick="togglePinUser('${user.id}', '${user.name}', 'student', '${user.phone}', ${JSON.stringify(user).replace(/'/g, "\\'")})">
-                                <i class="fas ${isPinned ? 'fa-times' : 'fa-thumbtack'}"></i>
-                                ${isPinned ? 'Retirer' : 'Épingler'}
-                            </button>
                         </div>
                     `;
                 }
