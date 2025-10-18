@@ -1,0 +1,2549 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cover Brain - Plateforme de Répétiteurs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        /* ===== STYLES EXISTANTS CONSERVÉS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #ffc107;
+            --dark: #343a40;
+            --light: #f5f7fa;
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --gradient-primary: linear-gradient(135deg, #4a6fa5 0%, #2c5282 100%);
+            --gradient-secondary: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            --gradient-success: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            --gradient-danger: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        body {
+            background-color: var(--light);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--secondary);
+        }
+
+        /* ===== NAVIGATION ===== */
+        .main-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: var(--gradient-secondary);
+            color: #333;
+        }
+
+        /* ===== MENU DÉROULANT CORRIGÉ ===== */
+        .more-dropdown {
+            position: relative;
+        }
+
+        .more-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-width: 220px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.1);
+            margin-top: 5px;
+        }
+
+        .more-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .more-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            color: var(--dark);
+            text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .more-menu a:hover {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .more-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.15);
+            padding: 10px 18px;
+            border-radius: 25px;
+            gap: 10px;
+        }
+
+        .notification-badge {
+            background: var(--gradient-danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gradient-secondary);
+            color: #333;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .btn-invite {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary);
+            position: relative;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 5px;
+            background: var(--gradient-secondary);
+            margin: 20px auto;
+            border-radius: 3px;
+        }
+
+        /* ===== SEARCH SECTION ===== */
+        .search-section {
+            background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+            padding: 4rem 0;
+        }
+
+        .search-form {
+            display: flex;
+            max-width: 800px;
+            margin: 0 auto;
+            gap: 0;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 18px 24px;
+            border: none;
+            font-size: 1.1rem;
+            background: white;
+        }
+
+        .search-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* ===== CARDS ===== */
+        .teacher-card, .student-card, .comment-card, .admin-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            border-left: 6px solid var(--primary);
+        }
+
+        .teacher-card:hover, .student-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .teacher-info, .student-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .info-item i {
+            color: var(--primary);
+            width: 20px;
+        }
+
+        .teacher-actions, .student-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 2rem;
+        }
+
+        .availability-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .available {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .unavailable {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        /* ===== INVITATIONS ===== */
+        .invitation-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-pending {
+            background: var(--gradient-secondary);
+            color: #333;
+        }
+
+        .status-accepted {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .status-rejected {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .teacher-saturated {
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .teacher-saturated::after {
+            content: 'SATURÉ';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--gradient-danger);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* ===== PANIER SECTION ===== */
+        .basket-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        .basket-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .basket-item:last-child {
+            border-bottom: none;
+        }
+
+        .basket-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ===== ADMIN PANEL ===== */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border-left: 6px solid var(--primary);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        .user-list, .comments-list {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 2px solid #f0f0f0;
+        }
+
+        .user-item, .comment-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-actions, .comment-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        /* ===== FORMS ===== */
+        .form-container {
+            background-color: white;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #fafbfc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .user-type {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 2.5rem;
+        }
+
+        .user-type label {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            background: #fafbfc;
+        }
+
+        .user-type input[type="radio"] {
+            display: none;
+        }
+
+        .user-type input[type="radio"]:checked + span {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .user-type span {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* ===== PAYMENT INFO ===== */
+        .payment-info {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            border-left: 6px solid var(--secondary);
+        }
+
+        /* ===== PRICE TAG ===== */
+        .price-tag {
+            background: var(--gradient-secondary);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        /* ===== MODALS ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        /* ===== ALERTS ===== */
+        .alert {
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 6px solid transparent;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: var(--success);
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: var(--danger);
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left-color: var(--info);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: linear-gradient(135deg, var(--dark), #2d3748);
+            color: white;
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 20px;
+            margin: 1.5rem 0;
+            justify-content: center;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+            padding: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .main-nav {
+                justify-content: center;
+                gap: 5px;
+            }
+
+            .nav-tab {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .teacher-actions, .student-actions {
+                flex-direction: column;
+            }
+
+            .basket-item {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .basket-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .user-type {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                padding: 2rem;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    Cover<span>Brain</span>
+                </div>
+                
+                <div class="main-nav">
+                    <button class="nav-tab active" onclick="showTab('accueil')">
+                        <i class="fas fa-home"></i> Accueil
+                    </button>
+                    <button class="nav-tab" onclick="showTab('recherche')" id="navSearchTab">
+                        <i class="fas fa-search"></i> Recherche
+                    </button>
+                    <button class="nav-tab hidden" onclick="showTab('modifierInfos')" id="navModifyTab">
+                        <i class="fas fa-edit"></i> Modifier Infos
+                    </button>
+                    <button class="nav-tab" onclick="showTab('profil')" id="navProfileTab">
+                        <i class="fas fa-user"></i> Profil
+                    </button>
+                    <button class="nav-tab" onclick="showTab('panier')" id="navBasketTab">
+                        <i class="fas fa-shopping-basket"></i> Mes Invitations
+                        <span class="notification-badge hidden" id="notificationBadge">0</span>
+                    </button>
+                    
+                    <!-- Onglet Admin -->
+                    <button class="nav-tab hidden" onclick="showTab('adminSection')" id="adminNavTab">
+                        <i class="fas fa-cog"></i> Admin
+                    </button>
+                    
+                    <div class="more-dropdown">
+                        <button class="nav-tab" onclick="toggleMoreMenu(event)">
+                            <i class="fas fa-ellipsis-h"></i> Plus
+                        </button>
+                        <div class="more-menu" id="moreMenu">
+                            <a href="javascript:void(0)" onclick="showTab('commentaires')">
+                                <i class="fas fa-comments"></i> Commentaires
+                            </a>
+                            <a href="javascript:void(0)" onclick="showTab('inscription')">
+                                <i class="fas fa-user-plus"></i> S'inscrire
+                            </a>
+                            <a href="javascript:void(0)" onclick="showTab('about')">
+                                <i class="fas fa-info-circle"></i> À propos
+                            </a>
+                            <a href="javascript:void(0)" onclick="showTab('confidentialite')">
+                                <i class="fas fa-shield-alt"></i> Politique de confidentialité
+                            </a>
+                            <a href="javascript:void(0)" onclick="showAdminIfAllowed()" id="adminMenuLink" class="hidden">
+                                <i class="fas fa-cog"></i> Administration
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div id="userNavItem" class="hidden">
+                        <div class="user-info">
+                            <i class="fas fa-user"></i>
+                            <span id="userName"></span>
+                        </div>
+                    </div>
+                    
+                    <button class="nav-tab" id="loginNavItem" onclick="openLoginModal()">
+                        <i class="fas fa-sign-in-alt"></i> Connexion
+                    </button>
+                    <button class="nav-tab hidden" onclick="logoutUser()" id="logoutNavItem">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main>
+        <!-- ===== HERO SECTION ===== -->
+        <section class="hero" id="accueil">
+            <div class="container">
+                <h1>Trouvez le répétiteur idéal pour réussir</h1>
+                <p>Cover Brain connecte les élèves avec des répétiteurs qualifiés pour un soutien scolaire personnalisé à domicile.</p>
+                <p><strong>Une innovation Xtronics</strong></p>
+                <a href="javascript:void(0)" class="btn" onclick="showTab('inscription')">
+                    <i class="fas fa-rocket"></i> Commencer maintenant
+                </a>
+            </div>
+        </section>
+
+        <!-- ===== SEARCH SECTION ===== -->
+        <section class="search-section hidden" id="recherche">
+            <div class="container">
+                <h2 class="section-title">Trouvez un répétiteur</h2>
+                <form class="search-form" onsubmit="event.preventDefault(); performSearch(document.getElementById('searchInput').value.trim());">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un cours (ex: Mathématiques, Physique, Anglais...)">
+                    <button type="submit" class="search-btn"><i class="fas fa-search"></i> Rechercher</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ===== RESULTS SECTION ===== -->
+        <section class="section results hidden" id="resultsSection">
+            <div class="container">
+                <h2 class="section-title" id="resultsTitle">Résultats de Recherche</h2>
+                <div id="resultsContainer"></div>
+            </div>
+        </section>
+
+        <!-- ===== PANIER/INVITATIONS SECTION ===== -->
+        <section class="section hidden" id="panier">
+            <div class="container">
+                <h2 class="section-title">Mes Invitations</h2>
+                <div class="basket-section">
+                    <div id="invitationsContainer">
+                        <!-- Invitations chargées dynamiquement -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== MODIFIER INFOS SECTION ===== -->
+        <section class="section hidden" id="modifierInfos">
+            <div class="container">
+                <h2 class="section-title">Modifier Mes Informations</h2>
+                <div id="modifyFormContainer"></div>
+            </div>
+        </section>
+
+        <!-- ===== PROFILE SECTION ===== -->
+        <section class="section hidden" id="profil">
+            <div class="container">
+                <div class="form-container">
+                    <h2 class="section-title">Mon Profil</h2>
+                    <div id="profileFormContainer"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ADMIN SECTION ===== -->
+        <section class="section hidden" id="adminSection">
+            <div class="container">
+                <h2 class="section-title">Panneau d'Administration</h2>
+                
+                <!-- Statistiques -->
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Utilisateurs Totaux</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalStudents">0</div>
+                        <div class="stat-label">Élèves</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTeachers">0</div>
+                        <div class="stat-label">Professeurs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalComments">0</div>
+                        <div class="stat-label">Commentaires</div>
+                    </div>
+                </div>
+
+                <!-- Gestion des Utilisateurs -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-users"></i> Gestion des Utilisateurs</h3>
+                    <div class="user-list" id="usersList">
+                        <!-- Liste des utilisateurs chargée dynamiquement -->
+                    </div>
+                </div>
+
+                <!-- Modération des Commentaires -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-comments"></i> Modération des Commentaires</h3>
+                    <div class="admin-comments-controls" style="margin-bottom: 1rem; display: flex; gap: 10px;">
+                        <button class="btn btn-primary btn-sm" onclick="loadAdminComments()">
+                            <i class="fas fa-sync-alt"></i> Actualiser
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAllComments()" id="deleteAllCommentsBtn">
+                            <i class="fas fa-trash"></i> Tout supprimer
+                        </button>
+                    </div>
+                    <div class="comments-list" id="adminCommentsList">
+                        <!-- Liste des commentaires chargée dynamiquement -->
+                    </div>
+                </div>
+
+                <!-- Paramètres -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-cog"></i> Paramètres de la Plateforme</h3>
+                    <div class="form-group">
+                        <label>Prix séance primaire ($)</label>
+                        <input type="number" class="form-control" id="primaryPrice" value="5" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Prix séance secondaire ($)</label>
+                        <input type="number" class="form-control" id="secondaryPrice" value="7" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Commission des professeurs (%)</label>
+                        <input type="number" class="form-control" id="commissionRate" value="10" min="0" max="50">
+                    </div>
+                    <button class="btn btn-primary" onclick="savePlatformSettings()">
+                        <i class="fas fa-save"></i> Sauvegarder les paramètres
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== REGISTRATION SECTION ===== -->
+        <section class="section hidden" id="inscription">
+            <div class="container">
+                <h2 class="section-title">Rejoindre Cover Brain</h2>
+                <div class="form-container">
+                    <div id="formAlert" class="alert hidden"></div>
+                    
+                    <!-- Conditions d'utilisation -->
+                    <div class="payment-info" id="termsConditions">
+                        <h4><i class="fas fa-file-contract"></i> Conditions d'Utilisation</h4>
+                        <div style="max-height: 200px; overflow-y: auto; margin-bottom: 15px; padding: 10px; background: white; border-radius: 5px;">
+                            <h5>Conditions pour les Professeurs :</h5>
+                            <ul style="margin-bottom: 15px;">
+                                <li>J'accepte le montant fixé par l'administrateur pour mes services (<span id="currentPrimaryPrice">5</span>$/séance au primaire, <span id="currentSecondaryPrice">7</span>$/séance au secondaire)</li>
+                                <li>Je m'engage à verser <span id="currentCommissionRate">10</span>% de mes bénéfices mensuels au numéro +243840426427 via Orange Money</li>
+                                <li>Je comprends que tout retard de paiement pourra entraîner la suspension de mon compte</li>
+                                <li>Les montants sont modifiables à tout moment par l'administration</li>
+                            </ul>
+                            
+                            <h5>Conditions pour les Élèves :</h5>
+                            <ul>
+                                <li>En m'inscrivant, j'accepte de me soumettre aux prix fixés par les professeurs sur la plateforme</li>
+                                <li>Je comprends que les tarifs sont établis selon le niveau scolaire (primaire/secondaire)</li>
+                                <li>Je m'engage à respecter les professeurs et les conditions de service</li>
+                            </ul>
+                            
+                            <h5>Dispositions Générales :</h5>
+                            <ul>
+                                <li>Toute utilisation non autorisée du nom "Cover Brain" ou tentative de plagiat sera sévèrement sanctionnée</li>
+                                <li>La plateforme se réserve le droit de modifier ces conditions à tout moment</li>
+                                <li>En cochant la case ci-dessous, je certifie avoir lu et accepté l'intégralité des conditions</li>
+                            </ul>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="acceptTerms" style="width: auto;">
+                                <span>J'ai lu et j'accepte les conditions d'utilisation ci-dessus</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="user-type">
+                        <label>
+                            <input type="radio" name="userType" value="student" checked onchange="toggleUserType()">
+                            <span><i class="fas fa-user-graduate"></i> Élève</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="userType" value="teacher" onchange="toggleUserType()">
+                            <span><i class="fas fa-chalkboard-teacher"></i> Professeur</span>
+                        </label>
+                    </div>
+
+                    <!-- Student Form -->
+                    <form id="studentForm" onsubmit="event.preventDefault(); registerStudent();">
+                        <div class="form-group">
+                            <label for="studentName">Nom complet</label>
+                            <input type="text" id="studentName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentPhone">Numéro de téléphone</label>
+                            <input type="tel" id="studentPhone" class="form-control" placeholder="+243..." required>
+                            <small style="color: #6c757d; margin-top: 5px; display: block;">Commencez par + (ex: +243840426427)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentLevel">Niveau scolaire</label>
+                            <select id="studentLevel" class="form-control" required>
+                                <option value="">Sélectionnez</option>
+                                <option value="primaire">Primaire (<span id="primaryPriceDisplay">5</span>$/séance)</option>
+                                <option value="secondaire">Secondaire (<span id="secondaryPriceDisplay">7</span>$/séance)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentClass">Classe</label>
+                            <input type="text" id="studentClass" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentSchool">Établissement</label>
+                            <input type="text" id="studentSchool" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentAge">Âge</label>
+                            <input type="number" id="studentAge" class="form-control" min="5" max="25" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentAddress">Adresse de domicile</label>
+                            <input type="text" id="studentAddress" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentPassword">Mot de passe</label>
+                            <input type="password" id="studentPassword" class="form-control" minlength="6" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('studentPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> S'inscrire
+                        </button>
+                    </form>
+
+                    <!-- Teacher Form -->
+                    <form id="teacherForm" class="hidden" onsubmit="event.preventDefault(); registerTeacher();">
+                        <div class="payment-info">
+                            <h4><i class="fas fa-info-circle"></i> Informations importantes pour les Professeurs</h4>
+                            <p><strong>Commission :</strong> <span id="commissionRateDisplay">10</span>% des revenus mensuels à verser au +243 840426427</p>
+                            <p><strong>Tarifs actuels :</strong> Primaire: <span id="teacherPrimaryPrice">5</span>$/séance, Secondaire: <span id="teacherSecondaryPrice">7</span>$/séance</p>
+                            <p><strong>Attention :</strong> Les mauvais payeurs seront bannis définitivement</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherName">Nom complet</label>
+                            <input type="text" id="teacherName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherPhone">Numéro de téléphone</label>
+                            <input type="tel" id="teacherPhone" class="form-control" placeholder="+243..." required>
+                            <small style="color: #6c757d; margin-top: 5px; display: block;">Commencez par + (ex: +243840426427)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherSubjects">Matières enseignées</label>
+                            <input type="text" id="teacherSubjects" class="form-control" placeholder="Mathématiques, Physique..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherClass">Niveaux enseignés</label>
+                            <input type="text" id="teacherClass" class="form-control" placeholder="Primaire, Collège..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherMaxStudents">Nombre maximum d'élèves encadrables</label>
+                            <input type="number" id="teacherMaxStudents" class="form-control" min="1" max="50" value="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherSchool">Établissement / Formation</label>
+                            <input type="text" id="teacherSchool" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherAddress">Adresse de domicile</label>
+                            <input type="text" id="teacherAddress" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="teacherPassword">Mot de passe</label>
+                            <input type="password" id="teacherPassword" class="form-control" minlength="6" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('teacherPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> S'inscrire
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== COMMENTS SECTION ===== -->
+        <section class="section hidden" id="commentaires">
+            <div class="container">
+                <h2 class="section-title">Espace Commentaires</h2>
+                <div class="comments-section">
+                    <div id="commentsContainer">
+                        <!-- Commentaires chargés dynamiquement -->
+                    </div>
+                    <div class="comment-form">
+                        <h3>Laisser un commentaire</h3>
+                        <form onsubmit="event.preventDefault(); addComment();">
+                            <div class="form-group">
+                                <label for="commentAuthor">Votre nom</label>
+                                <input type="text" id="commentAuthor" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="commentText">Votre message</label>
+                                <textarea id="commentText" class="form-control" placeholder="Partagez votre expérience avec Cover Brain..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Publier le commentaire
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ABOUT SECTION ===== -->
+        <section class="section hidden" id="about">
+            <div class="container">
+                <div class="form-container">
+                    <h2 class="section-title">À Propos de Cover Brain</h2>
+                    <div class="about-content">
+                        <h3>Notre Mission</h3>
+                        <p>Cover Brain est la première plateforme congolaise dédiée à la mise en relation entre élèves et répétiteurs qualifiés. Notre mission est de faciliter l'accès à l'éducation de qualité pour tous.</p>
+                        
+                        <h3>Protection de la Marque</h3>
+                        <div class="payment-info">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Avertissement Légal</h4>
+                            <p><strong>Toute tentative de plagiat ou d'usage non autorisé du nom "Cover Brain", de son logo, de son concept ou de tout élément distinctive de la plateforme est strictement interdite et sera poursuivie conformément à la loi.</strong></p>
+                            <p>La plateforme Cover Brain et son écosystème sont la propriété exclusive de Xtronics. Toute reproduction, imitation ou utilisation non autorisée entraînera des poursuites judiciaires et des dommages-intérêts.</p>
+                        </div>
+                        
+                        <h3>Contact</h3>
+                        <p><strong>Email : xtronicsconcepts@gmail.com</strong></p>
+                        
+                        <div class="teacher-actions" style="margin-top: 2rem;">
+                            <button class="btn btn-outline" onclick="showTab('confidentialite')">
+                                <i class="fas fa-shield-alt"></i> Politique de confidentialité
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== POLITIQUE DE CONFIDENTIALITÉ ===== -->
+        <section class="section hidden" id="confidentialite">
+            <div class="container">
+                <div class="form-container">
+                    <h2 class="section-title">Politique de Confidentialité</h2>
+                    <div class="privacy-content">
+                        <h3>Pourquoi nous collectons vos informations ?</h3>
+                        <p>Chez Cover Brain, nous recueillons vos informations personnelles dans le but unique de fournir et d'améliorer nos services de mise en relation entre élèves et professeurs.</p>
+                        
+                        <h3>Utilisation des données collectées :</h3>
+                        <div class="payment-info">
+                            <h4><i class="fas fa-database"></i> Données collectées et leur finalité</h4>
+                            <ul>
+                                <li><strong>Informations de contact :</strong> Pour faciliter la communication entre élèves et professeurs</li>
+                                <li><strong>Niveau scolaire et matières :</strong> Pour assurer des correspondances pertinentes</li>
+                                <li><strong>Localisation :</strong> Pour proposer des professeurs proches de votre domicile</li>
+                                <li><strong>Informations de paiement :</strong> Uniquement pour la gestion des commissions des professeurs</li>
+                            </ul>
+                        </div>
+
+                        <h3>Protection de vos données :</h3>
+                        <p>Vos données sont stockées de manière sécurisée sur Firebase et ne sont accessibles qu'aux administrateurs de la plateforme pour la modération et la gestion du service.</p>
+
+                        <h3>Partage des informations :</h3>
+                        <p>Vos coordonnées (nom et téléphone) sont partagées uniquement entre élèves et professeurs qui se mettent en relation via notre plateforme. Nous ne vendons ni ne louons vos informations à des tiers.</p>
+
+                        <h3>Vos droits :</h3>
+                        <p>Vous avez le droit de consulter, modifier ou supprimer vos informations à tout moment via votre profil ou en nous contactant directement.</p>
+
+                        <div class="teacher-actions" style="margin-top: 2rem;">
+                            <button class="btn btn-primary" onclick="showTab('about')">
+                                <i class="fas fa-arrow-left"></i> Retour à À propos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <p><strong>Cover Brain - Plateforme de Répétiteurs</strong></p>
+            <div class="social-links">
+                <a href="mailto:xtronicsconcepts@gmail.com" target="_blank"><i class="fas fa-envelope"></i></a>
+                <a href="https://m.me/cm/AbaT9AqAW84FF7Sk/?send_source=cm%3Acopy_invite_link" target="_blank"><i class="fab fa-facebook-messenger"></i></a>
+            </div>
+            <p>Contact : xtronicsconcepts@gmail.com</p>
+            <p>© 2024 Xtronics - Tous droits réservés</p>
+        </div>
+    </footer>
+
+    <!-- ===== MODALS ===== -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Connexion</h2>
+                <button class="close-btn" onclick="closeLoginModal()">&times;</button>
+            </div>
+            <div id="loginAlert" class="alert hidden"></div>
+            <div class="form-group">
+                <label for="loginPhone">Numéro de téléphone</label>
+                <input type="tel" id="loginPhone" class="form-control" placeholder="+243..." required>
+                <small style="color: #6c757d; margin-top: 5px; display: block;">Commencez par + (ex: +243840426427)</small>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Mot de passe</label>
+                <input type="password" id="loginPassword" class="form-control" required>
+                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <button class="btn btn-primary" onclick="loginUser()">
+                <i class="fas fa-sign-in-alt"></i> Se connecter
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ===== FIREBASE CONFIGURATION =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyAglsqHPVXXXEl0rfTyu793gKqo9A9ZO6s",
+            authDomain: "cover-brain-f0732.firebaseapp.com",
+            projectId: "cover-brain-f0732",
+            storageBucket: "cover-brain-f0732.firebasestorage.app",
+            messagingSenderId: "501343145001",
+            appId: "1:501343145001:web:def3a1659b2f0411512038"
+        };
+
+        // ===== FIREBASE INITIALIZATION =====
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("✅ Firebase initialisé avec succès!");
+        } catch (error) {
+            console.log("Firebase déjà initialisé");
+        }
+
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // ===== GLOBAL VARIABLES =====
+        let currentUser = JSON.parse(localStorage.getItem('coverBrainCurrentUser')) || null;
+        let isLoggedIn = currentUser !== null;
+        let platformSettings = {
+            primaryPrice: 5,
+            secondaryPrice: 7,
+            commissionRate: 10
+        };
+
+        // ===== FONCTIONS DE BASE =====
+        function togglePassword(passwordFieldId) {
+            const passwordField = document.getElementById(passwordFieldId);
+            const toggleButton = passwordField.nextElementSibling;
+            const icon = toggleButton.querySelector('i');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function toggleMoreMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('moreMenu');
+            menu.classList.toggle('show');
+        }
+
+        // Fermer le menu en cliquant ailleurs
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.more-dropdown')) {
+                document.getElementById('moreMenu').classList.remove('show');
+            }
+        });
+
+        function showTab(tabId) {
+            // Cacher toutes les sections
+            document.querySelectorAll('main > section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Désactiver tous les onglets
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Activer l'onglet courant
+            const activeTab = document.querySelector(`[onclick="showTab('${tabId}')"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+
+            // Afficher la section cible
+            const targetSection = document.getElementById(tabId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+
+            // Actions spécifiques selon l'onglet
+            if (tabId === 'panier') {
+                loadInvitations();
+            } else if (tabId === 'modifierInfos') {
+                showModifyForm();
+            } else if (tabId === 'profil') {
+                showProfile();
+            } else if (tabId === 'adminSection') {
+                loadAdminPanel();
+            } else if (tabId === 'inscription') {
+                updatePriceDisplays();
+            }
+            
+            // Fermer le menu déroulant
+            document.getElementById('moreMenu').classList.remove('show');
+        }
+
+        function toggleUserType() {
+            const isStudent = document.querySelector('input[name="userType"]:checked').value === 'student';
+            document.getElementById('studentForm').classList.toggle('hidden', !isStudent);
+            document.getElementById('teacherForm').classList.toggle('hidden', isStudent);
+        }
+
+        // ===== GESTION DES UTILISATEURS =====
+        async function registerStudent() {
+            if (!document.getElementById('acceptTerms').checked) {
+                showAlert('formAlert', 'Vous devez accepter les conditions d\'utilisation pour vous inscrire', 'danger');
+                return;
+            }
+
+            const studentData = {
+                name: document.getElementById('studentName').value,
+                phone: document.getElementById('studentPhone').value,
+                level: document.getElementById('studentLevel').value,
+                class: document.getElementById('studentClass').value,
+                school: document.getElementById('studentSchool').value,
+                age: parseInt(document.getElementById('studentAge').value),
+                address: document.getElementById('studentAddress').value,
+                password: document.getElementById('studentPassword').value,
+                createdAt: new Date()
+            };
+
+            if (!studentData.phone.startsWith('+')) {
+                showAlert('formAlert', 'Le numéro de téléphone doit commencer par + (ex: +243840426427)', 'danger');
+                return;
+            }
+
+            try {
+                const usersSnapshot = await db.collection('students')
+                    .where('phone', '==', studentData.phone)
+                    .get();
+
+                if (!usersSnapshot.empty) {
+                    showAlert('formAlert', 'Un utilisateur avec ce numéro existe déjà', 'danger');
+                    return;
+                }
+
+                await db.collection('students').add(studentData);
+                showAlert('formAlert', 'Inscription réussie! Vous pouvez maintenant vous connecter.', 'success');
+                document.getElementById('studentForm').reset();
+
+            } catch (error) {
+                console.error('Erreur inscription étudiant:', error);
+                showAlert('formAlert', 'Erreur lors de l\'inscription', 'danger');
+            }
+        }
+
+        async function registerTeacher() {
+            if (!document.getElementById('acceptTerms').checked) {
+                showAlert('formAlert', 'Vous devez accepter les conditions d\'utilisation pour vous inscrire', 'danger');
+                return;
+            }
+
+            const teacherData = {
+                name: document.getElementById('teacherName').value,
+                phone: document.getElementById('teacherPhone').value,
+                subjects: document.getElementById('teacherSubjects').value.split(',').map(s => s.trim()),
+                classLevels: document.getElementById('teacherClass').value.split(',').map(s => s.trim()),
+                maxStudents: parseInt(document.getElementById('teacherMaxStudents').value),
+                school: document.getElementById('teacherSchool').value,
+                address: document.getElementById('teacherAddress').value,
+                password: document.getElementById('teacherPassword').value,
+                available: true,
+                visible: true,
+                rating: 0,
+                totalRatings: 0,
+                currentStudents: 0,
+                verified: true,
+                createdAt: new Date()
+            };
+
+            if (!teacherData.phone.startsWith('+')) {
+                showAlert('formAlert', 'Le numéro de téléphone doit commencer par + (ex: +243840426427)', 'danger');
+                return;
+            }
+
+            try {
+                const usersSnapshot = await db.collection('teachers')
+                    .where('phone', '==', teacherData.phone)
+                    .get();
+
+                if (!usersSnapshot.empty) {
+                    showAlert('formAlert', 'Un utilisateur avec ce numéro existe déjà', 'danger');
+                    return;
+                }
+
+                await db.collection('teachers').add(teacherData);
+                showAlert('formAlert', 'Inscription réussie! Votre compte est maintenant actif.', 'success');
+                document.getElementById('teacherForm').reset();
+
+            } catch (error) {
+                console.error('Erreur inscription professeur:', error);
+                showAlert('formAlert', 'Erreur lors de l\'inscription', 'danger');
+            }
+        }
+
+        // ===== CONNEXION UTILISATEUR =====
+        async function loginUser() {
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!phone || !password) {
+                showAlert('loginAlert', 'Veuillez remplir tous les champs', 'danger');
+                return;
+            }
+
+            if (!phone.startsWith('+')) {
+                showAlert('loginAlert', 'Le numéro de téléphone doit commencer par + (ex: +243840426427)', 'danger');
+                return;
+            }
+
+            try {
+                // Recherche dans les étudiants
+                let studentSnapshot = await db.collection('students')
+                    .where('phone', '==', phone)
+                    .where('password', '==', password)
+                    .get();
+
+                if (!studentSnapshot.empty) {
+                    const studentDoc = studentSnapshot.docs[0];
+                    const student = studentDoc.data();
+                    
+                    currentUser = {
+                        id: studentDoc.id,
+                        type: 'student',
+                        name: student.name,
+                        phone: student.phone,
+                        password: student.password
+                    };
+                    
+                    localStorage.setItem('coverBrainCurrentUser', JSON.stringify(currentUser));
+                    isLoggedIn = true;
+                    
+                    closeLoginModal();
+                    checkLoginStatus();
+                    showAlert('formAlert', `Bienvenue ${student.name}!`, 'success');
+                    return;
+                }
+
+                // Recherche dans les professeurs
+                let teacherSnapshot = await db.collection('teachers')
+                    .where('phone', '==', phone)
+                    .where('password', '==', password)
+                    .get();
+
+                if (!teacherSnapshot.empty) {
+                    const teacherDoc = teacherSnapshot.docs[0];
+                    const teacher = teacherDoc.data();
+                    
+                    currentUser = {
+                        id: teacherDoc.id,
+                        type: 'teacher',
+                        name: teacher.name,
+                        phone: teacher.phone,
+                        password: teacher.password
+                    };
+                    
+                    localStorage.setItem('coverBrainCurrentUser', JSON.stringify(currentUser));
+                    isLoggedIn = true;
+                    
+                    closeLoginModal();
+                    checkLoginStatus();
+                    showAlert('formAlert', `Bienvenue ${teacher.name}!`, 'success');
+                    return;
+                }
+
+                // Recherche dans les administrateurs
+                let adminSnapshot = await db.collection('admins')
+                    .where('phone', '==', phone)
+                    .where('password', '==', password)
+                    .get();
+
+                if (!adminSnapshot.empty) {
+                    const adminDoc = adminSnapshot.docs[0];
+                    const admin = adminDoc.data();
+                    
+                    currentUser = {
+                        id: adminDoc.id,
+                        type: 'admin',
+                        name: admin.name,
+                        phone: admin.phone,
+                        password: admin.password
+                    };
+                    
+                    localStorage.setItem('coverBrainCurrentUser', JSON.stringify(currentUser));
+                    isLoggedIn = true;
+                    
+                    closeLoginModal();
+                    checkLoginStatus();
+                    showAlert('formAlert', `Bienvenue ${admin.name}!`, 'success');
+                    return;
+                }
+
+                showAlert('loginAlert', 'Numéro de téléphone ou mot de passe incorrect', 'danger');
+
+            } catch (error) {
+                console.error('Erreur connexion:', error);
+                showAlert('loginAlert', 'Erreur lors de la connexion', 'danger');
+            }
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            isLoggedIn = false;
+            localStorage.removeItem('coverBrainCurrentUser');
+            checkLoginStatus();
+            showTab('accueil');
+            showAlert('formAlert', 'Vous avez été déconnecté avec succès', 'success');
+        }
+
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('loginAlert').classList.add('hidden');
+        }
+
+        // ===== GESTION DU STATUT DE CONNEXION =====
+        function checkLoginStatus() {
+            if (isLoggedIn && currentUser) {
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userNavItem').classList.remove('hidden');
+                document.getElementById('logoutNavItem').classList.remove('hidden');
+                document.getElementById('loginNavItem').classList.add('hidden');
+                document.getElementById('navBasketTab').classList.remove('hidden');
+                document.getElementById('navModifyTab').classList.remove('hidden');
+
+                if (currentUser.type === 'admin') {
+                    document.getElementById('adminNavTab').classList.remove('hidden');
+                    document.getElementById('adminMenuLink').classList.remove('hidden');
+                } else {
+                    document.getElementById('adminNavTab').classList.add('hidden');
+                    document.getElementById('adminMenuLink').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('userNavItem').classList.add('hidden');
+                document.getElementById('logoutNavItem').classList.add('hidden');
+                document.getElementById('loginNavItem').classList.remove('hidden');
+                document.getElementById('navModifyTab').classList.add('hidden');
+                document.getElementById('navBasketTab').classList.add('hidden');
+                document.getElementById('adminNavTab').classList.add('hidden');
+                document.getElementById('adminMenuLink').classList.add('hidden');
+            }
+        }
+
+        // ===== SYSTÈME D'INVITATIONS =====
+        async function sendInvitation(teacherId, teacherName) {
+            if (!isLoggedIn || currentUser.type !== 'student') {
+                showAlert('formAlert', 'Seuls les élèves peuvent envoyer des invitations', 'danger');
+                return;
+            }
+
+            try {
+                const existingInvitation = await db.collection('invitations')
+                    .where('studentId', '==', currentUser.id)
+                    .where('teacherId', '==', teacherId)
+                    .where('status', '==', 'pending')
+                    .get();
+
+                if (!existingInvitation.empty) {
+                    showAlert('formAlert', 'Vous avez déjà envoyé une invitation à ce professeur', 'info');
+                    return;
+                }
+
+                const invitation = {
+                    studentId: currentUser.id,
+                    studentName: currentUser.name,
+                    studentPhone: currentUser.phone,
+                    teacherId: teacherId,
+                    teacherName: teacherName,
+                    status: 'pending',
+                    createdAt: new Date(),
+                    respondedAt: null
+                };
+
+                await db.collection('invitations').add(invitation);
+                showAlert('formAlert', `Invitation envoyée à ${teacherName} !`, 'success');
+
+            } catch (error) {
+                console.error('Erreur envoi invitation:', error);
+                showAlert('formAlert', 'Erreur lors de l\'envoi de l\'invitation', 'danger');
+            }
+        }
+
+        async function respondToInvitation(invitationId, response) {
+            try {
+                const invitationRef = db.collection('invitations').doc(invitationId);
+                const invitationDoc = await invitationRef.get();
+                
+                if (!invitationDoc.exists) {
+                    showAlert('formAlert', 'Invitation non trouvée', 'danger');
+                    return;
+                }
+
+                const invitation = invitationDoc.data();
+
+                if (response === 'accepted') {
+                    const teacherRef = db.collection('teachers').doc(invitation.teacherId);
+                    const teacherDoc = await teacherRef.get();
+                    
+                    if (!teacherDoc.exists) {
+                        showAlert('formAlert', 'Professeur non trouvé', 'danger');
+                        return;
+                    }
+
+                    const teacher = teacherDoc.data();
+                    const currentStudents = teacher.currentStudents || 0;
+                    
+                    if (currentStudents >= teacher.maxStudents) {
+                        showAlert('formAlert', 'Vous avez atteint votre limite d\'élèves', 'warning');
+                        return;
+                    }
+
+                    await teacherRef.update({
+                        currentStudents: currentStudents + 1,
+                        updatedAt: new Date()
+                    });
+                }
+
+                await invitationRef.update({
+                    status: response,
+                    respondedAt: new Date()
+                });
+
+                const statusText = response === 'accepted' ? 'acceptée' : 'refusée';
+                showAlert('formAlert', `Invitation ${statusText} avec succès`, 'success');
+                loadInvitations();
+
+            } catch (error) {
+                console.error('Erreur réponse invitation:', error);
+                showAlert('formAlert', 'Erreur lors de la réponse', 'danger');
+            }
+        }
+
+        async function loadInvitations() {
+            if (!isLoggedIn) {
+                document.getElementById('invitationsContainer').innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-envelope fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #6c757d;">Connectez-vous pour voir vos invitations</h3>
+                        <button class="btn btn-primary" onclick="openLoginModal()">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                let invitationsQuery;
+                
+                if (currentUser.type === 'student') {
+                    invitationsQuery = db.collection('invitations')
+                        .where('studentId', '==', currentUser.id)
+                        .orderBy('createdAt', 'desc');
+                } else {
+                    invitationsQuery = db.collection('invitations')
+                        .where('teacherId', '==', currentUser.id)
+                        .orderBy('createdAt', 'desc');
+                }
+
+                const snapshot = await invitationsQuery.get();
+                const container = document.getElementById('invitationsContainer');
+                container.innerHTML = '';
+
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-envelope-open fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                            <h3 style="color: #6c757d;">Aucune invitation</h3>
+                            <p>${currentUser.type === 'student' 
+                                ? 'Envoyez des invitations à des professeurs' 
+                                : 'Les invitations apparaîtront ici'}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const invitation = doc.data();
+                    const invitationElement = document.createElement('div');
+                    invitationElement.className = 'basket-item';
+                    
+                    if (currentUser.type === 'student') {
+                        invitationElement.innerHTML = `
+                            <div>
+                                <strong>Invitation à ${invitation.teacherName}</strong>
+                                <span class="invitation-status status-${invitation.status}">
+                                    <i class="fas fa-${getStatusIcon(invitation.status)}"></i>
+                                    ${getStatusText(invitation.status)}
+                                </span>
+                                <div style="color: #6c757d; font-size: 0.9rem; margin-top: 5px;">
+                                    Envoyée le ${invitation.createdAt.toDate().toLocaleDateString()}
+                                </div>
+                            </div>
+                            <div class="basket-actions">
+                                ${invitation.status === 'accepted' ? `
+                                    <a href="https://wa.me/${invitation.teacherPhone}" class="btn btn-whatsapp btn-sm" target="_blank">
+                                        <i class="fab fa-whatsapp"></i> Discuter
+                                    </a>
+                                ` : ''}
+                            </div>
+                        `;
+                    } else {
+                        invitationElement.innerHTML = `
+                            <div>
+                                <strong>Invitation de ${invitation.studentName}</strong>
+                                <span class="invitation-status status-${invitation.status}">
+                                    <i class="fas fa-${getStatusIcon(invitation.status)}"></i>
+                                    ${getStatusText(invitation.status)}
+                                </span>
+                                <div style="color: #6c757d; font-size: 0.9rem; margin-top: 5px;">
+                                    Reçue le ${invitation.createdAt.toDate().toLocaleDateString()}
+                                </div>
+                            </div>
+                            <div class="basket-actions">
+                                ${invitation.status === 'pending' ? `
+                                    <button class="btn btn-success btn-sm" onclick="respondToInvitation('${doc.id}', 'accepted')">
+                                        <i class="fas fa-check"></i> Accepter
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="respondToInvitation('${doc.id}', 'rejected')">
+                                        <i class="fas fa-times"></i> Refuser
+                                    </button>
+                                ` : ''}
+                                ${invitation.status === 'accepted' ? `
+                                    <a href="https://wa.me/${invitation.studentPhone}" class="btn btn-whatsapp btn-sm" target="_blank">
+                                        <i class="fab fa-whatsapp"></i> Discuter
+                                    </a>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+
+                    container.appendChild(invitationElement);
+                });
+
+            } catch (error) {
+                console.error('Erreur chargement invitations:', error);
+            }
+        }
+
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'pending': return 'clock';
+                case 'accepted': return 'check-circle';
+                case 'rejected': return 'times-circle';
+                default: return 'question';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'En attente';
+                case 'accepted': return 'Acceptée';
+                case 'rejected': return 'Refusée';
+                default: return 'Inconnu';
+            }
+        }
+
+        // ===== RECHERCHE ET AFFICHAGE =====
+        async function performSearch(searchTerm) {
+            if (!isLoggedIn) {
+                showAlert('formAlert', 'Connectez-vous pour effectuer une recherche', 'danger');
+                openLoginModal();
+                return;
+            }
+
+            try {
+                const snapshot = await db.collection('teachers').get();
+                const results = [];
+                
+                snapshot.forEach(doc => {
+                    const teacher = { id: doc.id, ...doc.data() };
+                    
+                    if (!teacher.banned && teacher.verified && teacher.visible !== false) {
+                        const isSaturated = (teacher.currentStudents || 0) >= teacher.maxStudents;
+                        const searchLower = searchTerm.toLowerCase();
+                        const matches = 
+                            teacher.subjects?.some(s => s.toLowerCase().includes(searchLower)) ||
+                            teacher.name.toLowerCase().includes(searchLower) ||
+                            teacher.classLevels?.some(level => level.toLowerCase().includes(searchLower));
+                        
+                        if (matches) {
+                            results.push({ ...teacher, saturated: isSaturated });
+                        }
+                    }
+                });
+
+                displaySearchResults(results, searchTerm);
+
+            } catch (error) {
+                console.error('Erreur recherche:', error);
+                showAlert('formAlert', 'Erreur lors de la recherche', 'danger');
+            }
+        }
+
+        function displaySearchResults(teachers, searchTerm) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+
+            document.getElementById('resultsTitle').textContent = teachers.length > 0 
+                ? `${teachers.length} Professeur(s) Trouvé(s)` 
+                : 'Aucun professeur trouvé';
+
+            if (teachers.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem;">
+                        <i class="fas fa-search fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #6c757d;">Aucun professeur trouvé</h3>
+                        <p>Essayez avec d'autres termes comme "Mathématiques", "Français", "Physique"...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            teachers.forEach(teacher => {
+                const price = currentUser?.level === 'primaire' ? platformSettings.primaryPrice : platformSettings.secondaryPrice;
+                const ratingStars = generateRatingStars(teacher.rating);
+                const isSaturated = teacher.saturated;
+
+                const teacherCard = document.createElement('div');
+                teacherCard.className = `teacher-card ${isSaturated ? 'teacher-saturated' : ''}`;
+                teacherCard.innerHTML = `
+                    <h3>${teacher.name} 
+                        <span class="availability-status ${teacher.available && !isSaturated ? 'available' : 'unavailable'}">
+                            <i class="fas ${teacher.available && !isSaturated ? 'fa-check' : 'fa-pause'}"></i>
+                            ${isSaturated ? 'Saturé' : (teacher.available ? 'Disponible' : 'Indisponible')}
+                        </span>
+                    </h3>
+                    <div class="rating">
+                        ${ratingStars}
+                        <span class="rating-value">${teacher.rating?.toFixed(1) || '0.0'}</span>
+                        <span style="color: #6c757d; margin-left: 8px;">(${teacher.totalRatings || 0} avis)</span>
+                    </div>
+                    <div class="teacher-info">
+                        <div class="info-item">
+                            <i class="fas fa-book"></i>
+                            <span><strong>Matières:</strong> ${teacher.subjects?.join(', ') || 'Non spécifié'}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span><strong>Niveaux:</strong> ${teacher.classLevels?.join(', ') || 'Non spécifié'}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-users"></i>
+                            <span><strong>Élèves:</strong> ${teacher.currentStudents || 0}/${teacher.maxStudents || 0}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-school"></i>
+                            <span><strong>Formation:</strong> ${teacher.school}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span><strong>Zone:</strong> ${teacher.address}</span>
+                        </div>
+                    </div>
+                    <div class="price-tag">${price}$/séance</div>
+                    <div class="teacher-actions">
+                        ${currentUser.type === 'student' && !isSaturated ? `
+                            <button class="btn btn-invite" onclick="sendInvitation('${teacher.id}', '${teacher.name}')">
+                                <i class="fas fa-paper-plane"></i> Inviter
+                            </button>
+                        ` : ''}
+                        ${isSaturated ? `
+                            <button class="btn btn-secondary" disabled>
+                                <i class="fas fa-users"></i> Complet
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                container.appendChild(teacherCard);
+            });
+
+            document.getElementById('resultsSection').classList.remove('hidden');
+        }
+
+        function generateRatingStars(rating) {
+            const fullStars = Math.floor(rating || 0);
+            const hasHalfStar = (rating || 0) % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let stars = '';
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt" style="color: #ffc107;"></i>';
+            }
+            
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            return stars;
+        }
+
+        // ===== FONCTIONS UTILITAIRES =====
+        function showAlert(containerId, message, type) {
+            const alertContainer = document.getElementById(containerId);
+            alertContainer.textContent = message;
+            alertContainer.className = `alert alert-${type}`;
+            alertContainer.classList.remove('hidden');
+            setTimeout(() => {
+                alertContainer.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showAdminIfAllowed() {
+            if (currentUser && currentUser.type === 'admin') {
+                showTab('adminSection');
+            } else {
+                alert('Accès réservé aux administrateurs');
+            }
+        }
+
+        // ===== INITIALISATION =====
+        async function initializeApp() {
+            checkLoginStatus();
+            await createDefaultSettings();
+            await loadPlatformSettings();
+            await loadComments();
+            console.log("✅ Application Cover Brain initialisée");
+        }
+
+        async function createDefaultSettings() {
+            try {
+                const settingsDoc = await db.collection('platformSettings').doc('pricing').get();
+                if (!settingsDoc.exists) {
+                    await db.collection('platformSettings').doc('pricing').set({
+                        primaryPrice: 5,
+                        secondaryPrice: 7,
+                        commissionRate: 10,
+                        updatedAt: new Date()
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur création paramètres:', error);
+            }
+        }
+
+        async function loadPlatformSettings() {
+            try {
+                const settingsDoc = await db.collection('platformSettings').doc('pricing').get();
+                if (settingsDoc.exists) {
+                    const settings = settingsDoc.data();
+                    platformSettings = {
+                        primaryPrice: settings.primaryPrice || 5,
+                        secondaryPrice: settings.secondaryPrice || 7,
+                        commissionRate: settings.commissionRate || 10
+                    };
+                    updatePriceDisplays();
+                }
+            } catch (error) {
+                console.error('Erreur chargement paramètres:', error);
+            }
+        }
+
+        function updatePriceDisplays() {
+            const priceElements = {
+                'currentPrimaryPrice': platformSettings.primaryPrice,
+                'currentSecondaryPrice': platformSettings.secondaryPrice,
+                'currentCommissionRate': platformSettings.commissionRate,
+                'primaryPriceDisplay': platformSettings.primaryPrice,
+                'secondaryPriceDisplay': platformSettings.secondaryPrice,
+                'commissionRateDisplay': platformSettings.commissionRate,
+                'teacherPrimaryPrice': platformSettings.primaryPrice,
+                'teacherSecondaryPrice': platformSettings.secondaryPrice
+            };
+            
+            Object.keys(priceElements).forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = priceElements[id];
+                }
+            });
+        }
+
+        // ===== FONCTIONS CORRIGÉES =====
+        async function showModifyForm() {
+            if (!isLoggedIn) {
+                document.getElementById('modifyFormContainer').innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-user-edit fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #6c757d;">Connectez-vous pour modifier vos informations</h3>
+                        <button class="btn btn-primary" onclick="openLoginModal()">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                let userData;
+                if (currentUser.type === 'student') {
+                    const doc = await db.collection('students').doc(currentUser.id).get();
+                    userData = doc.data();
+                } else {
+                    const doc = await db.collection('teachers').doc(currentUser.id).get();
+                    userData = doc.data();
+                }
+
+                let formHtml = `
+                    <div class="form-container">
+                        <h3>Modifier mes informations</h3>
+                        <form onsubmit="event.preventDefault(); updateUserInfo();">
+                            <div class="form-group">
+                                <label for="modifyName">Nom complet</label>
+                                <input type="text" id="modifyName" class="form-control" value="${userData.name}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="modifyPhone">Numéro de téléphone</label>
+                                <input type="tel" id="modifyPhone" class="form-control" value="${userData.phone}" required>
+                            </div>
+                `;
+
+                if (currentUser.type === 'student') {
+                    formHtml += `
+                        <div class="form-group">
+                            <label for="modifyLevel">Niveau scolaire</label>
+                            <select id="modifyLevel" class="form-control" required>
+                                <option value="primaire" ${userData.level === 'primaire' ? 'selected' : ''}>Primaire</option>
+                                <option value="secondaire" ${userData.level === 'secondaire' ? 'selected' : ''}>Secondaire</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifyClass">Classe</label>
+                            <input type="text" id="modifyClass" class="form-control" value="${userData.class}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifySchool">Établissement</label>
+                            <input type="text" id="modifySchool" class="form-control" value="${userData.school}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifyAge">Âge</label>
+                            <input type="number" id="modifyAge" class="form-control" value="${userData.age}" min="5" max="25" required>
+                        </div>
+                    `;
+                } else {
+                    formHtml += `
+                        <div class="form-group">
+                            <label for="modifySubjects">Matières enseignées</label>
+                            <input type="text" id="modifySubjects" class="form-control" value="${userData.subjects?.join(', ') || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifyClassLevels">Niveaux enseignés</label>
+                            <input type="text" id="modifyClassLevels" class="form-control" value="${userData.classLevels?.join(', ') || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifyMaxStudents">Nombre maximum d'élèves</label>
+                            <input type="number" id="modifyMaxStudents" class="form-control" value="${userData.maxStudents || 10}" min="1" max="50" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifySchool">Formation/Établissement</label>
+                            <input type="text" id="modifySchool" class="form-control" value="${userData.school}" required>
+                        </div>
+                    `;
+                }
+
+                formHtml += `
+                            <div class="form-group">
+                                <label for="modifyAddress">Adresse</label>
+                                <input type="text" id="modifyAddress" class="form-control" value="${userData.address}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="modifyPassword">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+                                <input type="password" id="modifyPassword" class="form-control">
+                                <button type="button" class="password-toggle" onclick="togglePassword('modifyPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Mettre à jour
+                            </button>
+                        </form>
+                    </div>
+                `;
+
+                document.getElementById('modifyFormContainer').innerHTML = formHtml;
+
+            } catch (error) {
+                console.error('Erreur chargement formulaire modification:', error);
+                document.getElementById('modifyFormContainer').innerHTML = `
+                    <div class="alert alert-danger">Erreur lors du chargement des informations</div>
+                `;
+            }
+        }
+
+        async function updateUserInfo() {
+            try {
+                const updateData = {
+                    name: document.getElementById('modifyName').value,
+                    phone: document.getElementById('modifyPhone').value,
+                    address: document.getElementById('modifyAddress').value,
+                    updatedAt: new Date()
+                };
+
+                const newPassword = document.getElementById('modifyPassword').value;
+                if (newPassword) {
+                    updateData.password = newPassword;
+                }
+
+                if (currentUser.type === 'student') {
+                    updateData.level = document.getElementById('modifyLevel').value;
+                    updateData.class = document.getElementById('modifyClass').value;
+                    updateData.school = document.getElementById('modifySchool').value;
+                    updateData.age = parseInt(document.getElementById('modifyAge').value);
+                    
+                    await db.collection('students').doc(currentUser.id).update(updateData);
+                } else {
+                    updateData.subjects = document.getElementById('modifySubjects').value.split(',').map(s => s.trim());
+                    updateData.classLevels = document.getElementById('modifyClassLevels').value.split(',').map(s => s.trim());
+                    updateData.maxStudents = parseInt(document.getElementById('modifyMaxStudents').value);
+                    updateData.school = document.getElementById('modifySchool').value;
+                    
+                    await db.collection('teachers').doc(currentUser.id).update(updateData);
+                }
+
+                // Mettre à jour l'utilisateur courant
+                currentUser.name = updateData.name;
+                currentUser.phone = updateData.phone;
+                localStorage.setItem('coverBrainCurrentUser', JSON.stringify(currentUser));
+                checkLoginStatus();
+
+                showAlert('formAlert', 'Informations mises à jour avec succès!', 'success');
+
+            } catch (error) {
+                console.error('Erreur mise à jour:', error);
+                showAlert('formAlert', 'Erreur lors de la mise à jour', 'danger');
+            }
+        }
+
+        async function showProfile() {
+            if (!isLoggedIn) {
+                document.getElementById('profileFormContainer').innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-user fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #6c757d;">Connectez-vous pour voir votre profil</h3>
+                        <button class="btn btn-primary" onclick="openLoginModal()">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                let userData;
+                if (currentUser.type === 'student') {
+                    const doc = await db.collection('students').doc(currentUser.id).get();
+                    userData = doc.data();
+                } else {
+                    const doc = await db.collection('teachers').doc(currentUser.id).get();
+                    userData = doc.data();
+                }
+
+                let profileHtml = `
+                    <div class="user-info-display">
+                        <h3>Mon Profil</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <i class="fas fa-user"></i>
+                                <span><strong>Nom:</strong> ${userData.name}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-phone"></i>
+                                <span><strong>Téléphone:</strong> ${userData.phone}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span><strong>Adresse:</strong> ${userData.address}</span>
+                            </div>
+                `;
+
+                if (currentUser.type === 'student') {
+                    profileHtml += `
+                            <div class="info-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span><strong>Niveau:</strong> ${userData.level}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-school"></i>
+                                <span><strong>Classe:</strong> ${userData.class}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-university"></i>
+                                <span><strong>Établissement:</strong> ${userData.school}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-birthday-cake"></i>
+                                <span><strong>Âge:</strong> ${userData.age} ans</span>
+                            </div>
+                    `;
+                } else {
+                    profileHtml += `
+                            <div class="info-item">
+                                <i class="fas fa-book"></i>
+                                <span><strong>Matières:</strong> ${userData.subjects?.join(', ') || 'Non spécifié'}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span><strong>Niveaux:</strong> ${userData.classLevels?.join(', ') || 'Non spécifié'}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-users"></i>
+                                <span><strong>Élèves actuels:</strong> ${userData.currentStudents || 0}/${userData.maxStudents || 0}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-university"></i>
+                                <span><strong>Formation:</strong> ${userData.school}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-star"></i>
+                                <span><strong>Note:</strong> ${userData.rating?.toFixed(1) || '0.0'}/5 (${userData.totalRatings || 0} avis)</span>
+                            </div>
+                    `;
+                }
+
+                profileHtml += `
+                        </div>
+                        <div class="profile-actions" style="margin-top: 2rem;">
+                            <button class="btn btn-primary" onclick="showTab('modifierInfos')">
+                                <i class="fas fa-edit"></i> Modifier mes informations
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('profileFormContainer').innerHTML = profileHtml;
+
+            } catch (error) {
+                console.error('Erreur chargement profil:', error);
+                document.getElementById('profileFormContainer').innerHTML = `
+                    <div class="alert alert-danger">Erreur lors du chargement du profil</div>
+                `;
+            }
+        }
+
+        async function loadAdminPanel() {
+            if (!isLoggedIn || currentUser.type !== 'admin') {
+                document.getElementById('usersList').innerHTML = '<p>Accès réservé aux administrateurs</p>';
+                return;
+            }
+
+            try {
+                // Charger les statistiques
+                const [studentsSnapshot, teachersSnapshot, commentsSnapshot] = await Promise.all([
+                    db.collection('students').get(),
+                    db.collection('teachers').get(),
+                    db.collection('comments').get()
+                ]);
+
+                document.getElementById('totalUsers').textContent = studentsSnapshot.size + teachersSnapshot.size;
+                document.getElementById('totalStudents').textContent = studentsSnapshot.size;
+                document.getElementById('totalTeachers').textContent = teachersSnapshot.size;
+                document.getElementById('totalComments').textContent = commentsSnapshot.size;
+
+                // Charger la liste des utilisateurs
+                let usersHtml = '';
+                
+                studentsSnapshot.forEach(doc => {
+                    const student = doc.data();
+                    usersHtml += `
+                        <div class="user-item">
+                            <div>
+                                <strong>${student.name}</strong>
+                                <div style="color: #6c757d; font-size: 0.9rem;">
+                                    Élève - ${student.phone} - ${student.level}
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-danger btn-sm" onclick="banUser('students', '${doc.id}')">
+                                    <i class="fas fa-ban"></i> Bannir
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                teachersSnapshot.forEach(doc => {
+                    const teacher = doc.data();
+                    usersHtml += `
+                        <div class="user-item">
+                            <div>
+                                <strong>${teacher.name}</strong>
+                                <div style="color: #6c757d; font-size: 0.9rem;">
+                                    Professeur - ${teacher.phone} - ${teacher.subjects?.join(', ')}
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="btn btn-danger btn-sm" onclick="banUser('teachers', '${doc.id}')">
+                                    <i class="fas fa-ban"></i> Bannir
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('usersList').innerHTML = usersHtml || '<p>Aucun utilisateur trouvé</p>';
+
+                // Charger les commentaires
+                await loadAdminComments();
+
+            } catch (error) {
+                console.error('Erreur chargement panel admin:', error);
+                document.getElementById('usersList').innerHTML = '<p>Erreur lors du chargement</p>';
+            }
+        }
+
+        async function banUser(collection, userId) {
+            if (confirm('Êtes-vous sûr de vouloir bannir cet utilisateur ?')) {
+                try {
+                    await db.collection(collection).doc(userId).update({
+                        banned: true,
+                        bannedAt: new Date()
+                    });
+                    showAlert('formAlert', 'Utilisateur banni avec succès', 'success');
+                    loadAdminPanel();
+                } catch (error) {
+                    console.error('Erreur bannissement:', error);
+                    showAlert('formAlert', 'Erreur lors du bannissement', 'danger');
+                }
+            }
+        }
+
+        async function loadAdminComments() {
+            try {
+                const snapshot = await db.collection('comments').orderBy('createdAt', 'desc').get();
+                let commentsHtml = '';
+
+                snapshot.forEach(doc => {
+                    const comment = doc.data();
+                    commentsHtml += `
+                        <div class="comment-item">
+                            <div>
+                                <strong>${comment.author}</strong>
+                                <div style="color: #6c757d; font-size: 0.9rem;">
+                                    ${comment.createdAt?.toDate().toLocaleDateString()}
+                                </div>
+                                <p>${comment.text}</p>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="btn btn-danger btn-sm" onclick="deleteComment('${doc.id}')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('adminCommentsList').innerHTML = commentsHtml || '<p>Aucun commentaire</p>';
+
+            } catch (error) {
+                console.error('Erreur chargement commentaires admin:', error);
+                document.getElementById('adminCommentsList').innerHTML = '<p>Erreur lors du chargement</p>';
+            }
+        }
+
+        async function deleteComment(commentId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')) {
+                try {
+                    await db.collection('comments').doc(commentId).delete();
+                    showAlert('formAlert', 'Commentaire supprimé avec succès', 'success');
+                    loadAdminComments();
+                } catch (error) {
+                    console.error('Erreur suppression commentaire:', error);
+                    showAlert('formAlert', 'Erreur lors de la suppression', 'danger');
+                }
+            }
+        }
+
+        async function deleteAllComments() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer TOUS les commentaires ? Cette action est irréversible.')) {
+                try {
+                    const snapshot = await db.collection('comments').get();
+                    const batch = db.batch();
+                    
+                    snapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    await batch.commit();
+                    showAlert('formAlert', 'Tous les commentaires ont été supprimés', 'success');
+                    loadAdminComments();
+                } catch (error) {
+                    console.error('Erreur suppression tous commentaires:', error);
+                    showAlert('formAlert', 'Erreur lors de la suppression', 'danger');
+                }
+            }
+        }
+
+        async function savePlatformSettings() {
+            try {
+                const newSettings = {
+                    primaryPrice: parseInt(document.getElementById('primaryPrice').value),
+                    secondaryPrice: parseInt(document.getElementById('secondaryPrice').value),
+                    commissionRate: parseInt(document.getElementById('commissionRate').value),
+                    updatedAt: new Date()
+                };
+
+                await db.collection('platformSettings').doc('pricing').set(newSettings);
+                platformSettings = newSettings;
+                updatePriceDisplays();
+                
+                showAlert('formAlert', 'Paramètres sauvegardés avec succès!', 'success');
+
+            } catch (error) {
+                console.error('Erreur sauvegarde paramètres:', error);
+                showAlert('formAlert', 'Erreur lors de la sauvegarde', 'danger');
+            }
+        }
+
+        async function loadComments() {
+            try {
+                const snapshot = await db.collection('comments').orderBy('createdAt', 'desc').limit(10).get();
+                const container = document.getElementById('commentsContainer');
+                container.innerHTML = '';
+
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-comments fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
+                            <h3 style="color: #6c757d;">Aucun commentaire pour le moment</h3>
+                            <p>Soyez le premier à partager votre expérience!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const comment = doc.data();
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment-card';
+                    commentElement.innerHTML = `
+                        <h4>${comment.author}</h4>
+                        <div style="color: #6c757d; font-size: 0.9rem; margin-bottom: 1rem;">
+                            ${comment.createdAt?.toDate().toLocaleDateString()}
+                        </div>
+                        <p>${comment.text}</p>
+                    `;
+                    container.appendChild(commentElement);
+                });
+
+            } catch (error) {
+                console.error('Erreur chargement commentaires:', error);
+            }
+        }
+
+        async function addComment() {
+            const author = document.getElementById('commentAuthor').value.trim();
+            const text = document.getElementById('commentText').value.trim();
+
+            if (!author || !text) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            try {
+                const comment = {
+                    author: author,
+                    text: text,
+                    createdAt: new Date()
+                };
+
+                await db.collection('comments').add(comment);
+                
+                document.getElementById('commentAuthor').value = '';
+                document.getElementById('commentText').value = '';
+                
+                showAlert('formAlert', 'Commentaire publié avec succès!', 'success');
+                await loadComments();
+
+            } catch (error) {
+                console.error('Erreur ajout commentaire:', error);
+                showAlert('formAlert', 'Erreur lors de la publication', 'danger');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+    </script>
+</body>
+</html>
