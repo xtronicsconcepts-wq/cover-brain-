@@ -14,27 +14,30 @@
     <style>
         /* ===== VARIABLES MODERNES ===== */
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #f59e0b;
-            --secondary-dark: #d97706;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #06b6d4;
-            --dark: #1f2937;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --secondary-dark: #6d28d9;
+            --success: #059669;
+            --success-dark: #047857;
+            --danger: #dc2626;
+            --danger-dark: #b91c1c;
+            --warning: #d97706;
+            --info: #0891b2;
+            --dark: #1e293b;
             --light: #f8fafc;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-600: #4b5563;
-            --gray-800: #1f2937;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --gray-800: #1e293b;
             
-            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            --gradient-secondary: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            --gradient-dark: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            --gradient-secondary: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
+            --gradient-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            --gradient-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -337,12 +340,16 @@
             background: var(--gradient-danger);
         }
 
+        .btn-warning {
+            background: var(--gradient-warning);
+        }
+
         .btn-whatsapp {
             background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
         }
 
         .btn-pin {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         }
 
         .btn-sm {
@@ -569,7 +576,7 @@
         }
 
         .rating-stars i {
-            color: #ffc107;
+            color: #f59e0b;
             font-size: 1.2rem;
         }
 
@@ -758,7 +765,7 @@
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .password-toggle {
@@ -827,7 +834,7 @@
             padding: 2rem;
             border-radius: var(--radius-lg);
             margin: 2rem 0;
-            border-left: 6px solid var(--secondary);
+            border-left: 6px solid var(--warning);
             border: 1px solid #fcd34d;
         }
 
@@ -1673,13 +1680,13 @@
             savePinnedTeachers(pinnedTeachers);
             
             // Recharger l'affichage si on est sur la page des résultats ou du panier
-            if (document.getElementById('resultsSection').classList.contains('hidden') === false) {
+            if (!document.getElementById('resultsSection').classList.contains('hidden')) {
                 const searchTerm = document.getElementById('searchInput').value.trim();
                 if (searchTerm) {
                     performSearch(searchTerm);
                 }
             }
-            if (document.getElementById('panier').classList.contains('hidden') === false) {
+            if (!document.getElementById('panier').classList.contains('hidden')) {
                 loadPinnedTeachers();
             }
         }
@@ -1730,10 +1737,10 @@
                         </div>
                     </div>
                     <div class="basket-actions">
-                        <a href="https://wa.me/${teacher.phone}?text=${encodeURIComponent(`Bonjour ${teacher.name} 👋\n\nJe suis intéressé(e) par vos cours ${teacher.data.subjects?.join(', ')} sur Cover Brain.\n\nPouvez-vous me donner plus d'informations sur vos disponibilités et tarifs ?\n\nMerci !`)}" class="btn btn-whatsapp btn-sm" target="_blank">
+                        <a href="https://wa.me/${teacher.phone}?text=${encodeURIComponent(`Bonjour ${teacher.name} 👋\n\nJe suis intéressé(e) par vos cours ${teacher.data.subjects?.join(', ')} sur Cover Brain.\n\nPouvez-vous me donner plus d'informations sur vos disponibilités ?\n\nMerci !`)}" class="btn btn-whatsapp btn-sm" target="_blank">
                             <i class="fab fa-whatsapp"></i> WhatsApp
                         </a>
-                        <button class="btn btn-danger btn-sm" onclick="togglePinTeacher('${teacher.id}', '${teacher.name}', '${teacher.phone}', ${JSON.stringify(teacher.data).replace(/'/g, "\\'")})">
+                        <button class="btn btn-danger btn-sm" onclick="togglePinTeacher('${teacher.id}', '${teacher.name.replace(/'/g, "\\'")}', '${teacher.phone}', ${JSON.stringify(teacher.data).replace(/"/g, '&quot;')})">
                             <i class="fas fa-times"></i> Retirer
                         </button>
                     </div>
@@ -2051,6 +2058,13 @@
                     document.getElementById('navBasketTab').classList.add('hidden');
                 }
 
+                // Cacher l'onglet recherche pour les professeurs
+                if (currentUser.type === 'teacher') {
+                    document.getElementById('navSearchTab').classList.add('hidden');
+                } else {
+                    document.getElementById('navSearchTab').classList.remove('hidden');
+                }
+
                 if (currentUser.type === 'admin') {
                     document.getElementById('adminNavTab').classList.remove('hidden');
                     document.getElementById('adminMenuLink').classList.remove('hidden');
@@ -2064,6 +2078,7 @@
                 document.getElementById('loginNavItem').classList.remove('hidden');
                 document.getElementById('navModifyTab').classList.add('hidden');
                 document.getElementById('navBasketTab').classList.add('hidden');
+                document.getElementById('navSearchTab').classList.remove('hidden');
                 document.getElementById('adminNavTab').classList.add('hidden');
                 document.getElementById('adminMenuLink').classList.add('hidden');
             }
@@ -2075,6 +2090,12 @@
             if (!isLoggedIn) {
                 showAlert('formAlert', 'Connectez-vous pour effectuer une recherche', 'danger');
                 openLoginModal();
+                return;
+            }
+
+            // Désactiver la recherche pour les professeurs
+            if (currentUser.type === 'teacher') {
+                showAlert('formAlert', 'La recherche est désactivée pour les professeurs', 'info');
                 return;
             }
 
@@ -2093,6 +2114,7 @@
                     snapshot.forEach(doc => {
                         const teacher = { id: doc.id, ...doc.data() };
                         
+                        // CORRECTION : Vérifier explicitement que visible n'est pas false
                         if (!teacher.banned && teacher.verified && teacher.visible !== false) {
                             const isSaturated = (teacher.currentStudents || 0) >= teacher.maxStudents;
                             const searchLower = searchTerm.toLowerCase();
@@ -2106,10 +2128,6 @@
                             }
                         }
                     });
-                } else {
-                    // Les professeurs recherchent des élèves - SUPPRIMER LA BARRE DE RECHERCHE
-                    showAlert('formAlert', 'La recherche est désactivée pour les professeurs', 'info');
-                    return;
                 }
 
                 displaySearchResults(results, searchTerm);
@@ -2191,15 +2209,15 @@
                         </div>
                         <div class="price-tag">${price}$/séance</div>
                         <div class="teacher-actions">
-                            <a href="https://wa.me/${user.phone}?text=${encodeURIComponent(`Bonjour ${user.name} 👋\n\nJe suis intéressé(e) par vos cours ${user.subjects?.join(', ')} sur Cover Brain.\n\nPouvez-vous me donner plus d'informations sur vos disponibilités et tarifs ?\n\nMerci !`)}" class="btn btn-whatsapp" target="_blank">
+                            <a href="https://wa.me/${user.phone}?text=${encodeURIComponent(`Bonjour ${user.name} 👋\n\nJe suis intéressé(e) par vos cours ${user.subjects?.join(', ')} sur Cover Brain.\n\nPouvez-vous me donner plus d'informations sur vos disponibilités ?\n\nMerci !`)}" class="btn btn-whatsapp" target="_blank">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
                             ${currentUser.type === 'student' ? `
-                                <button class="btn btn-pin ${isPinned ? 'btn-danger' : ''}" onclick="togglePinTeacher('${user.id}', '${user.name}', '${user.phone}', ${JSON.stringify(user).replace(/'/g, "\\'")})">
+                                <button class="btn btn-pin ${isPinned ? 'btn-danger' : ''}" onclick="togglePinTeacher('${user.id}', '${user.name.replace(/'/g, "\\'")}', '${user.phone}', ${JSON.stringify(user).replace(/"/g, '&quot;')})">
                                     <i class="fas ${isPinned ? 'fa-times' : 'fa-thumbtack'}"></i>
                                     ${isPinned ? 'Retirer' : 'Épingler'}
                                 </button>
-                                <button class="btn btn-primary" onclick="openRatingModal('${user.id}', '${user.name}')">
+                                <button class="btn btn-primary" onclick="openRatingModal('${user.id}', '${user.name.replace(/'/g, "\\'")}')">
                                     <i class="fas fa-star"></i> Noter
                                 </button>
                             ` : ''}
@@ -2208,16 +2226,6 @@
                                     <i class="fas fa-users"></i> Complet
                                 </button>
                             ` : ''}
-                        </div>
-                    `;
-                } else {
-                    // Carte pour les élèves (vue professeur) - DÉSACTIVÉE
-                    userCard.className = 'student-card';
-                    userCard.innerHTML = `
-                        <div style="text-align: center; padding: 2rem;">
-                            <i class="fas fa-search fa-3x" style="color: #6c757d; margin-bottom: 1rem;"></i>
-                            <h3 style="color: #6c757d;">Recherche désactivée</h3>
-                            <p>La recherche d'élèves n'est pas disponible pour les professeurs</p>
                         </div>
                     `;
                 }
@@ -2236,15 +2244,15 @@
             let stars = '';
             
             for (let i = 0; i < fullStars; i++) {
-                stars += '<i class="fas fa-star" style="color: #ffc107;"></i>';
+                stars += '<i class="fas fa-star" style="color: #f59e0b;"></i>';
             }
             
             if (hasHalfStar) {
-                stars += '<i class="fas fa-star-half-alt" style="color: #ffc107;"></i>';
+                stars += '<i class="fas fa-star-half-alt" style="color: #f59e0b;"></i>';
             }
             
             for (let i = 0; i < emptyStars; i++) {
-                stars += '<i class="far fa-star" style="color: #ffc107;"></i>';
+                stars += '<i class="far fa-star" style="color: #f59e0b;"></i>';
             }
             
             return stars;
@@ -2314,10 +2322,10 @@
                 const starRating = parseInt(star.getAttribute('data-rating'));
                 if (starRating <= rating) {
                     star.className = 'fas fa-star';
-                    star.style.color = '#ffc107';
+                    star.style.color = '#f59e0b';
                 } else {
                     star.className = 'far fa-star';
-                    star.style.color = '#ffc107';
+                    star.style.color = '#f59e0b';
                 }
             });
         }
@@ -2403,24 +2411,41 @@
             }
         }
 
-        // ===== BOUTON DE VISIBILITÉ POUR LES PROFESSEURS =====
+        // ===== BOUTON DE VISIBILITÉ POUR LES PROFESSEURS - CORRIGÉ =====
         async function toggleTeacherVisibility() {
             if (!isLoggedIn || currentUser.type !== 'teacher') {
+                showAlert('formAlert', 'Cette fonction est réservée aux professeurs', 'danger');
                 return;
             }
 
             try {
+                // Récupérer l'état actuel du professeur
                 const teacherDoc = await db.collection('teachers').doc(currentUser.id).get();
-                const currentVisibility = teacherDoc.data().visible;
+                if (!teacherDoc.exists) {
+                    showAlert('formAlert', 'Profil professeur non trouvé', 'danger');
+                    return;
+                }
+
+                const teacherData = teacherDoc.data();
+                const currentVisibility = teacherData.visible;
                 
+                // CORRECTION : Inverser correctement la visibilité
+                const newVisibility = !currentVisibility;
+                
+                console.log(`Changement de visibilité: ${currentVisibility} -> ${newVisibility}`);
+                
+                // Mettre à jour dans Firebase
                 await db.collection('teachers').doc(currentUser.id).update({
-                    visible: !currentVisibility
+                    visible: newVisibility,
+                    updatedAt: new Date()
                 });
 
-                showAlert('formAlert', `Votre profil est maintenant ${!currentVisibility ? 'visible' : 'invisible'}`, 'success');
+                showAlert('formAlert', `Votre profil est maintenant ${newVisibility ? 'visible' : 'invisible'}`, 'success');
                 
-                // Recharger le profil
-                showProfile();
+                // CORRECTION : Rafraîchir immédiatement l'affichage du profil
+                setTimeout(() => {
+                    showProfile();
+                }, 500);
 
             } catch (error) {
                 console.error('Erreur changement visibilité:', error);
@@ -2726,6 +2751,9 @@
                             </div>
                     `;
                 } else {
+                    // CORRECTION : Afficher correctement l'état de visibilité
+                    const isVisible = userData.visible !== false;
+                    
                     profileHtml += `
                             <div class="info-item">
                                 <i class="fas fa-book"></i>
@@ -2749,7 +2777,7 @@
                             </div>
                             <div class="info-item">
                                 <i class="fas fa-eye"></i>
-                                <span><strong>Visibilité:</strong> ${userData.visible !== false ? 'Visible' : 'Invisible'}</span>
+                                <span><strong>Visibilité:</strong> ${isVisible ? 'Visible' : 'Invisible'}</span>
                             </div>
                     `;
                 }
@@ -2762,12 +2790,13 @@
                             </button>
                 `;
 
-                // Ajouter le bouton de visibilité pour les professeurs
+                // Ajouter le bouton de visibilité pour les professeurs - CORRIGÉ
                 if (currentUser.type === 'teacher') {
+                    const isVisible = userData.visible !== false;
                     profileHtml += `
-                            <button class="btn ${userData.visible !== false ? 'btn-warning' : 'btn-success'}" onclick="toggleTeacherVisibility()">
-                                <i class="fas fa-eye${userData.visible !== false ? '-slash' : ''}"></i>
-                                ${userData.visible !== false ? 'Rendre invisible' : 'Rendre visible'}
+                            <button class="btn ${isVisible ? 'btn-warning' : 'btn-success'}" onclick="toggleTeacherVisibility()">
+                                <i class="fas fa-eye${isVisible ? '-slash' : ''}"></i>
+                                ${isVisible ? 'Rendre invisible' : 'Rendre visible'}
                             </button>
                     `;
                 }
